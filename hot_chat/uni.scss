@@ -17,7 +17,7 @@
 /* 行为相关颜色 */
 $uni-color-primary: rgba(255, 228, 49, 1);
 $uni-color-success: #4cd964;
-$uni-color-warning: #f0ad4e;
+$uni-color-warning: #FF5D5B;
 $uni-color-error: #dd524d;
 
 /* 文字基本颜色 */
@@ -34,7 +34,7 @@ $uni-bg-color-hover:rgba(39, 40, 50, 0.2);//点击状态颜色
 $uni-bg-color-mask:rgba(0, 0, 0, 0.4);//遮罩颜色
 
 /* 边框颜色 */
-$uni-border-color:rgba(39, 40, 50, 0.1);
+$uni-border-color:rgba(39, 40, 50, 0.5);
 
 /* 尺寸变量 */
 
@@ -55,14 +55,14 @@ $uni-border-radius-lg: 40rpx;
 $uni-border-radius-circle: 50%;
 
 /* 水平间距 */
-$uni-spacing-row-sm: 10px;
-$uni-spacing-row-base: 20rpx;
-$uni-spacing-row-lg: 30rpx;
+$uni-spacing-row-sm: 20px;
+$uni-spacing-row-base: 40rpx;
+$uni-spacing-row-lg: 60rpx;
 
 /* 垂直间距 */
-$uni-spacing-col-sm: 8rpx;
-$uni-spacing-col-base: 16rpx;
-$uni-spacing-col-lg: 24rpx;
+$uni-spacing-col-sm: 16rpx;
+$uni-spacing-col-base: 32rpx;
+$uni-spacing-col-lg: 48rpx;
 
 /* 透明度 */
 $uni-opacity-disabled: 0.3; // 组件禁用态的透明度
