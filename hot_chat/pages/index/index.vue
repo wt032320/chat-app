@@ -88,6 +88,7 @@
 <style lang="scss">
 	.content {
 		padding-top: var(--status-bar-height);
+		padding-bottom: $uni-spacing-col-base;
 	}
 	.top-bar {
 		// box-sizing: border-box;

@@ -5,8 +5,21 @@
 			"style": {
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path" : "pages/signin/signin",
+			"style" : {
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path" : "pages/regist/regist",
+			"style" :                                                                                    
+			{
+				"navigationStyle": "custom"
+			}	
 		}
-	],
+  ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
