@@ -40,17 +40,17 @@
 			</view>
 			<!-- 消息 -->
 			<view class="friends">
-				<view class="friend-list">
+				<view class="friend-list" v-for="(item, index) in friends" :key="index">
 					<view class="friend-list-left">
-						<text class="tips">1</text>
-						<image src="../../static/images/test_imgs/four.png"></image>
+						<text class="tips">{{item.tip}}</text>
+						<image :src="item.imgurl"></image>
 					</view>
 					<view class="friend-list-right">
 						<view class="top">
-							<view class="name">小耿OvO</view>
-							<view class="time">14:23</view>
+							<view class="name">{{item.name}}</view>
+							<view class="time">{{changeTime(item.time)}}</view>
 						</view>
-						<view class="message">我是沙口，哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈！</view>
+						<view class="message">{{item.message}}</view>
 					</view>
 				</view>
 			</view>
@@ -59,24 +59,38 @@
 </template>
 
 <script>
+  import datas from '../../commons/js/datas';
+  import myfun from '../../commons/js/myFun';
+
 	export default {
 		data() {
 			return {
-				title: 'Hello'
+				friends: []
 			}
 		},
 		onLoad() {
-
+      this.getFriends()
 		},
 		methods: {
-
+      changeTime: function (date) {
+        return myfun.dataTime(date);
+      },
+      getFriends:function () {
+        this.friends = datas.friends()
+        for (let i = 0; i < this.friends.length; i++) {
+          this.friends[i].imgurl = '../../static/images/test_imgs/' + this.friends[i].imgurl
+        }
+      }
 		}
 	}
 </script>
 
 <style lang="scss">
+	.content {
+		padding-top: var(--status-bar-height);
+	}
 	.top-bar {
-		box-sizing: border-box;
+		// box-sizing: border-box;
 		z-index: 1001;
 		position: fixed;
 		top: 0;
@@ -86,6 +100,7 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
+		padding-top: var(--status-bar-height);
 		background-color: $uni-bg-color;
 		box-shadow: 0px 1px 0px 1px rgba(0, 0, 0, 0.1);
 		.top-bar-left {
@@ -124,11 +139,14 @@
 		}
 	}
 	.main {
-		padding: 88rpx $uni-spacing-col-base 0;
+		padding-top: 104rpx;
 	}
 	.friend-list {
 		height: 96rpx;
-		padding: 16rpx 0;
+		padding: 16rpx $uni-spacing-col-base;
+    &:active {
+      background-color: $uni-bg-color-grey;
+    }
 		.friend-list-left {
 			position: relative;
 			float: left;
