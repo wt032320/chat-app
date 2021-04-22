@@ -1,2 +1,2 @@
 # chat-app
-By   uni-app + Vue3 + Typescript + NodeJs
+By   uni-app + Vue.js + NodeJs
