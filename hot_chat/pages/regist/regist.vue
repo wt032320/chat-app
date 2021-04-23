@@ -2,7 +2,7 @@
 	<view class="contents">
 		<!-- 注册头部 -->
 		<view class="top-bar">
-			<view class="top-bar-left" @tap="toSign">
+			<view class="top-bar-left" @tap="backOne">
 				<image src="../../static/images/common/back.png" class="back-img"></image>
 			</view>
 		</view>
@@ -80,10 +80,10 @@
 				}
 				this.isOk()
 			},
-			// 跳转到登录页
-			toSign: function() {
-				uni.navigateTo({
-					url: '../signin/signin'
+			// 返回登录页
+			backOne: function() {
+				uni.navigateBack({
+					delta: 1
 				})
 			},
 			// 获取用户名
@@ -109,31 +109,12 @@
 </script>
 
 <style lang="scss">
-	.contents {
-		padding-top: var(--status-bar-height);
-	}
+	@import "../../commons/css/mycss.scss";
 	.top-bar {
-		z-index: 1001;
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 88rpx;
 		display: flex;
 		justify-content: flex-start;
 		align-items: center;
-		padding-top: var(--status-bar-height);
 		background-color: $uni-bg-color;
-		.top-bar-left {
-			padding-left: 32rpx;
-			width: 88rpx;
-			height: 88rpx;
-			.back-img {
-				margin-top: 21rpx;
-				width: 26rpx;
-				height: 46rpx;
-			}
-		}
 	}
 	.logo {
 		display: flex;

@@ -3,9 +3,7 @@
 		<!-- 登录头部 -->
 		<view class="top-bar">
 			<view class="top-bar-right" @tap="toRegist">
-				<view class="text">
-					注册
-				</view>
+				<view class="text">注册</view>
 			</view>
 		</view>
 		<!-- logo -->
@@ -60,29 +58,13 @@
 </script>
 
 <style lang="scss">
-	.contents {
-		padding-top: var(--status-bar-height);
-	}
+	@import "../../commons/css/mycss.scss";
 	.top-bar {
-		z-index: 1001;
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 88rpx;
 		display: flex;
 		justify-content: flex-end;
 		align-items: center;
-		padding-top: var(--status-bar-height);
-		background-color: $uni-bg-color;
-		.top-bar-right {
-			padding-right: 32rpx;
-			.text {
-				font-size: 36rpx;
-				font-weight: 500;
-				color: $uni-text-color;
-			}
-		}
+		background-color: rgba(255, 255, 255, 0.96);
+		box-shadow: 0px 1px 0px 1px rgba(0, 0, 0, 0.1);
 	}
 	.logo {
 		display: flex;

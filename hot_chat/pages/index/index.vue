@@ -11,7 +11,7 @@
 			</view>
 
 			<view class="top-bar-right">
-				<view class="search">
+				<view class="search" @tap="toSearch">
 					<image src="../../static/images/index/search.png"></image>
 				</view>
 				<view class="add">
@@ -42,7 +42,7 @@
 			<view class="friends">
 				<view class="friend-list" v-for="(item, index) in friends" :key="index">
 					<view class="friend-list-left">
-						<text class="tips">{{item.tip}}</text>
+						<text class="tips" v-if="item.tips>0">{{item.tips}}</text>
 						<image :src="item.imgurl"></image>
 					</view>
 					<view class="friend-list-right">
@@ -75,69 +75,31 @@
       changeTime: function (date) {
         return myfun.dataTime(date);
       },
+			// 获取消息列表
       getFriends:function () {
         this.friends = datas.friends()
         for (let i = 0; i < this.friends.length; i++) {
           this.friends[i].imgurl = '../../static/images/test_imgs/' + this.friends[i].imgurl
         }
-      }
+      },
+			// 跳转到搜索页面
+			toSearch: function() {
+				uni.navigateTo({
+					url: '../search/search'
+				})
+			}
 		}
 	}
 </script>
 
 <style lang="scss">
+	@import "../../commons/css/mycss.scss";
 	.content {
-		padding-top: var(--status-bar-height);
 		padding-bottom: $uni-spacing-col-base;
 	}
 	.top-bar {
-		// box-sizing: border-box;
-		z-index: 1001;
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 88rpx;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding-top: var(--status-bar-height);
-		background-color: $uni-bg-color;
+		background-color: rgba(255, 255, 255, 0.96);
 		box-shadow: 0px 1px 0px 1px rgba(0, 0, 0, 0.1);
-		.top-bar-left {
-			padding-left: $uni-spacing-col-base;
-			image {
-				margin-top: 10rpx;
-				width: 68rpx;
-				height: 68rpx;
-				border-radius: 16rpx;
-			}
-		}
-		.top-bar-center {
-			margin-left: 80rpx;
-			image {
-				width: 88rpx;
-				height: 42rpx;
-			}
-		}
-		.top-bar-right {
-			padding-right: 14rpx;
-			.search {
-				width: 88rpx;
-				height: 88rpx;
-				display: inline-block;
-			}
-			.add {
-				width: 88rpx;
-				height: 88rpx;
-				display: inline-block;
-			}
-			image {
-				padding: 18rpx 0 0 18rpx;
-				width: 52rpx;
-				height: 52rpx;
-			}
-		}
 	}
 	.main {
 		padding-top: 104rpx;
@@ -160,12 +122,13 @@
 			.tips {
 				z-index: 10;
 				position: absolute;
-				top: -6rpx;
+				top: -8rpx;
 				left: 68rpx;
-				min-width: 36rpx;
+				min-width: 20rpx;
+				padding: 0 8rpx;
 				height: 36rpx;
 				background: $uni-color-warning;
-				border-radius: $uni-border-radius-circle;
+				border-radius: 18rpx;
 				font-size: $uni-font-size-sm;
 				color: $uni-text-color-inverse;
 				line-height: 36rpx;
