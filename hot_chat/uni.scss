@@ -23,7 +23,7 @@ $uni-color-error: rgba(255, 93, 91, 1);
 /* 文字基本颜色 */
 $uni-text-color:rgba(39, 40, 50, 1);//基本色
 $uni-text-color-inverse:#fff;//反色
-$uni-text-color-grey:#999;//辅助灰色，如加载更多的提示信息
+$uni-text-color-grey:rgba(39,40,50,0.6);//辅助灰色，如加载更多的提示信息
 $uni-text-color-placeholder: #808080;
 $uni-text-color-disable:rgba(0, 0, 0, 0.4);
 

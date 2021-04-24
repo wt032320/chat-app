@@ -32,6 +32,14 @@
 			{
 				"navigationStyle": "custom"
 			}
+		},
+		{
+			"path" : "pages/userdetials/userdetials",
+			"style" :                                                                                    
+			{
+				"navigationStyle": "custom"
+			}
+				
 		}
   ],
 	"globalStyle": {

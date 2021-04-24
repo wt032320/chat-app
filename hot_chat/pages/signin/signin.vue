@@ -64,7 +64,7 @@
 		justify-content: flex-end;
 		align-items: center;
 		background-color: rgba(255, 255, 255, 0.96);
-		box-shadow: 0px 1px 0px 1px rgba(0, 0, 0, 0.1);
+		border-bottom: 1px solid $uni-border-color;
 	}
 	.logo {
 		display: flex;
