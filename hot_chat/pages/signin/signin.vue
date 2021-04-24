@@ -1,5 +1,5 @@
 <template>
-	<view class="contents">
+	<view class="content">
 		<!-- 登录头部 -->
 		<view class="top-bar">
 			<view class="top-bar-right" @tap="toRegist">

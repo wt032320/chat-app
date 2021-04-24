@@ -2,9 +2,9 @@
 	<view class="content">
 		<!-- 首页顶部栏 -->
 		<view class="top-bar">
-			<view class="top-bar-left">
+			<navigator url="/pages/userhome/userhome?id=aaa" hover-class="none" class="top-bar-left">
 				<image src="../../static/images/test_imgs/two.png"></image>
-			</view>
+			</navigator>
 
 			<view class="top-bar-center">
 				<image src="../../static/images/index/logo.png"></image>
@@ -96,71 +96,71 @@
 	@import "../../commons/css/mycss.scss";
 	.content {
 		padding-bottom: $uni-spacing-col-base;
-	}
-	.top-bar {
-		background-color: rgba(255, 255, 255, 0.96);
-		box-shadow: 0px 1px 0px 1px rgba(0, 0, 0, 0.1);
-	}
-	.main {
-		padding-top: 104rpx;
-	}
-	.friend-list {
-		height: 96rpx;
-		padding: 16rpx $uni-spacing-col-base;
-    &:active {
-      background-color: $uni-bg-color-grey;
-    }
-		.friend-list-left {
-			position: relative;
-			float: left;
-			image {
-				width: 96rpx;
-				height: 96rpx;
-				border-radius: $uni-border-radius-base;
-				background-color: $uni-color-primary;
-			}
-			.tips {
-				z-index: 10;
-				position: absolute;
-				top: -8rpx;
-				left: 68rpx;
-				min-width: 20rpx;
-				padding: 0 8rpx;
-				height: 36rpx;
-				background: $uni-color-warning;
-				border-radius: 18rpx;
-				font-size: $uni-font-size-sm;
-				color: $uni-text-color-inverse;
-				line-height: 36rpx;
-				text-align: center;
-			}
+		.top-bar {
+			background-color: rgba(255, 255, 255, 0.96);
+			box-shadow: 0px 1px 0px 0px rgba(0, 0, 0, 0.1);
 		}
-		.friend-list-right {
-			padding-left: 128rpx;
-			.top {
-				height: 50rpx;
-				.name {
-					float: left;
-					font-size: 36rpx;
-					font-weight: 400;
-					color: $uni-text-color;
-					line-height: 50rpx;
+		.main {
+			padding-top: 104rpx;
+		}
+		.friend-list {
+			height: 96rpx;
+			padding: 16rpx $uni-spacing-col-base;
+		  &:active {
+		    background-color: $uni-bg-color-grey;
+		  }
+			.friend-list-left {
+				position: relative;
+				float: left;
+				image {
+					width: 96rpx;
+					height: 96rpx;
+					border-radius: $uni-border-radius-base;
+					background-color: $uni-color-primary;
 				}
-				.time {
-					float: right;
+				.tips {
+					z-index: 10;
+					position: absolute;
+					top: -8rpx;
+					left: 68rpx;
+					min-width: 20rpx;
+					padding: 0 8rpx;
+					height: 36rpx;
+					background: $uni-color-warning;
+					border-radius: 18rpx;
 					font-size: $uni-font-size-sm;
-					color: $uni-text-color-disable;
-					line-height: 50rpx;
+					color: $uni-text-color-inverse;
+					line-height: 36rpx;
+					text-align: center;
 				}
 			}
-			.message {
-				font-size: $uni-font-size-base;
-				color: $uni-text-color-grey;
-				line-height: 40rpx;
-				display: -webkit-box;
-				-webkit-box-orient: vertical;
-				-webkit-line-clamp: 1;
-				overflow: hidden;
+			.friend-list-right {
+				padding-left: 128rpx;
+				.top {
+					height: 50rpx;
+					.name {
+						float: left;
+						font-size: 36rpx;
+						font-weight: 400;
+						color: $uni-text-color;
+						line-height: 50rpx;
+					}
+					.time {
+						float: right;
+						font-size: $uni-font-size-sm;
+						color: $uni-text-color-disable;
+						line-height: 50rpx;
+					}
+				}
+				.message {
+					font-size: $uni-font-size-base;
+					color: $uni-text-color-grey;
+					line-height: 40rpx;
+					display: -webkit-box;
+					-webkit-box-orient: vertical;
+					-webkit-line-clamp: 1;
+					overflow: hidden;
+				}
 			}
 		}
 	}

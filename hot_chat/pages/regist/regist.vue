@@ -1,5 +1,5 @@
 <template>
-	<view class="contents">
+	<view class="content">
 		<!-- 注册头部 -->
 		<view class="top-bar">
 			<view class="top-bar-left" @tap="backOne">

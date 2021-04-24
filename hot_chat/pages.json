@@ -25,6 +25,13 @@
 			{
 				"navigationStyle": "custom"
 			}	
+		},
+		{
+			"path" : "pages/userhome/userhome",
+			"style" :                                                                                    
+			{
+				"navigationStyle": "custom"
+			}
 		}
   ],
 	"globalStyle": {
