@@ -111,8 +111,8 @@
 		</view>
 		<view class="modify" :style="{bottom:-+modifyHeight+'px'}" :animation="animationData">
 			<view class="modify-header">
-				<view class="close"  @tap="modify">取消</view>
-				<view class="title">签名</view>
+				<view class="close"  @tap="modifyCancel">取消</view>
+				<view class="title">{{modifyTitle}}</view>
 				<view class="define"  @tap="modifySubmit">确定</view>
 			</view>
 			<view class="modify-main">
@@ -254,7 +254,9 @@
 				} else {
 					this.ispsw = 'none'
 				}
-				this.modifyTitle = type
+				if (type !== null) {
+					this.modifyTitle = type
+				}
 				this.data = data
 				this.isModify = !this.isModify
 				var animation = uni.createAnimation({
@@ -267,6 +269,11 @@
 					animation.bottom(-this.modifyHeight).step()
 				}
 				this.animationData = animation.export()
+			},
+			
+			// 取消修改
+			modifyCancel: function () {
+				this.modify()
 			},
 			
 			// 弹框修改确定

@@ -111,7 +111,7 @@
 				} else {
 					animation.bottom(-this.addHeight).step()
 					animation1.bottom(-100).step()
-					animation2.width(200).height(200).step()
+					animation2.width().height().step()
 					animation3.opacity(1).step()
 					animation4.backgroundColor('rgba(255, 228, 69, 0)').step()
 				}
