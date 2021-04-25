@@ -20,7 +20,7 @@
 			</view>
 			<view class="tip">输入用户名或密码错误</view>
 		</view>
-		<view class="submit" @tap="login">登录</view>
+		<view class="submit" @tap="testFun">登录</view>
 	</view>
 </template>
 
@@ -28,7 +28,7 @@
 	export default {
 		data() {
 			return {
-				user: '', // 用户名
+				user: '', // 用户名/邮箱
 				psw: '' // 密码
 			}
 		},
@@ -47,11 +47,18 @@
 			getPassword: function(e) {
 				this.psw = e.detail.value
 			},
-			// 登录提交
-			login: function() {
-				if(this.user && this.psw) {
-					console.log('发送登录请求')
-				}
+			// 后端接口测试
+			testFun: function() {
+				uni.request({
+					url: 'http://127.0.0.1:8081/mail',
+					data: {
+						mail: this.user,
+					},
+					method: 'POST',
+					success: (data) => {
+						console.log(data)
+					}
+				})
 			}
 		}
 	}
