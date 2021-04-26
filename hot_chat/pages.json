@@ -42,13 +42,21 @@
 				
 		}
       ,{
-            "path" : "pages/friendrequest/friendrequest",
-            "style" :                                                                                    
-            {
-                "navigationStyle": "custom"
-            }
+					"path" : "pages/friendrequest/friendrequest",
+					"style" :                                                                                    
+					{
+							"navigationStyle": "custom"
+					}
             
         }
+			,{
+					"path" : "pages/chatroom/chatroom",
+					"style" :                                                                                    
+					{
+							"navigationStyle": "custom"
+					}
+					
+			}
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

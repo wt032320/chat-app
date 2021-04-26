@@ -40,7 +40,7 @@
 			</view>
 			<!-- 消息 -->
 			<view class="friends">
-				<view class="friend-list" v-for="(item, index) in friends" :key="index">
+				<view class="friend-list" v-for="(item, index) in friends" :key="index" @tap="toChat">
 					<view class="friend-list-left">
 						<text class="tips" v-if="item.tips>0">{{item.tips}}</text>
 						<image :src="item.imgurl"></image>
@@ -86,6 +86,12 @@
 			toSearch: function() {
 				uni.navigateTo({
 					url: '../search/search'
+				})
+			},
+			// 跳转到聊天页
+			toChat: function() {
+				uni.navigateTo({
+					url:'../chatroom/chatroom'
 				})
 			}
 		}

@@ -92,7 +92,7 @@
 	width: 100%;
 	height: 90rpx;
 	padding-top: 10rpx;
-	padding-bottom: var(--status-bar-height);
+	padding-bottom: env(safe-area-inset-bottom);
 }
 
 // btn1 样式
