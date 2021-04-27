@@ -23,7 +23,7 @@
 		<!-- 消息列表 -->
 		<view class="main">
 			<!-- 好友申请 -->
-			<view class="apply">
+			<view class="apply" @tap="toRequest">
 				<view class="friend-list">
 					<view class="friend-list-left">
 						<text class="tips">1</text>
@@ -82,6 +82,12 @@
           this.friends[i].imgurl = '../../static/images/test_imgs/' + this.friends[i].imgurl
         }
       },
+			// 跳转到好友请求页
+			toRequest: function() {
+				uni.navigateTo({
+					url: '../friendrequest/friendrequest'
+				})
+			},
 			// 跳转到搜索页面
 			toSearch: function() {
 				uni.navigateTo({
