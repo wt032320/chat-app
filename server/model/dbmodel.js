@@ -11,7 +11,6 @@ var UserSchema = new Schema({
   sex: { type: String, default: 'asexual' },         // 性别
   birth: { type: Date },                             // 生日
   phone: { type: String },                           // 电话
-  psw: { type: String },                             // 密码
   explain: { type: String },                         // 签名
   imgurl: { type: String, default: 'user.png' },     // 头像链接
   time: { type: Date },                              // 注册时间

@@ -29,7 +29,8 @@
 		data() {
 			return {
 				user: '', // 用户名/邮箱
-				psw: '' // 密码
+				psw: '', // 密码
+				token: '',
 			}
 		},
 		methods: {
@@ -50,16 +51,18 @@
 			// 后端接口测试
 			testFun: function() {
 				uni.request({
-					url: 'http://127.0.0.1:8081/mail',
+					url: 'http://127.0.0.1:8081/login/match',
 					data: {
-						mail: this.user,
+						data: '小耿OvO',
+						pwd: '11111111',
 					},
 					method: 'POST',
 					success: (data) => {
+						this.token = data.data.back.token
 						console.log(data)
 					}
 				})
-			}
+			},
 		}
 	}
 </script>
