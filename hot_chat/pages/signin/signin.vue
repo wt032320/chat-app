@@ -51,14 +51,13 @@
 			// 后端接口测试
 			testFun: function() {
 				uni.request({
-					url: 'http://127.0.0.1:8081/login/match',
+					url: 'http://127.0.0.1:8081/search/user',
 					data: {
-						data: '小耿OvO',
-						pwd: '11111111',
+						data: '小',
 					},
 					method: 'POST',
 					success: (data) => {
-						this.token = data.data.back.token
+						// this.token = data.data.back.token
 						console.log(data)
 					}
 				})

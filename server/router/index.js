@@ -5,6 +5,8 @@ var emailserver = require('../dom/emailserver')
 var regist = require('../server/regist')
 // 登录页服务
 var login = require('../server/login')
+// 搜索页面服务
+var search = require('../server/search')
 
 module.exports = function (app) {
   app.get('/test', (req, res) => {
@@ -33,6 +35,25 @@ module.exports = function (app) {
   app.post('/login/match', (req, res) => {
     login.userLogin(req, res)
   })
+
+  // 搜索页面
+  // 搜索用户
+  app.post('/search/user', (req, res) => {
+    search.searchUser(req, res)
+  })
+  // 判断是否为好友
+  app.post('/search/isfriend', (req, res) => {
+    search.isFriend(req, res)
+  })
+  // 搜索群
+  app.post('/search/group', (req, res) => {
+    search.searchGroup(req, res)
+  })
+  // 判断是否在群里
+  app.post('/search/ingroup', (req, res) => {
+    search.isInGroup(req, res)
+  })
+
 
   // token测试
   // app.post('/login/test', (req, res) => {
