@@ -7,6 +7,8 @@ var regist = require('../server/regist')
 var login = require('../server/login')
 // 搜索页面服务
 var search = require('../server/search')
+// 详情页服务
+var detial = require('../server/userdetial')
 
 module.exports = function (app) {
   app.get('/test', (req, res) => {
@@ -54,6 +56,24 @@ module.exports = function (app) {
     search.isInGroup(req, res)
   })
 
+  // 用户详情
+  // 详情
+  app.post('/user/detial', (req, res) => {
+    detial.userDetial(req, res)
+  })
+  // 信息修改
+  app.post('/user/update', (req, res) => {
+    detial.userUpdate(req, res)
+  })
+  // 修改好友备注
+  app.post('/friend/markname', (req, res) => {
+    detial.friendMarkName(req, res)
+  })
+
+  // 获取好友备注
+  app.post('/friend/getname', (req, res) => {
+    detial.getMarkName(req, res)
+  })
 
   // token测试
   // app.post('/login/test', (req, res) => {

@@ -213,3 +213,111 @@ exports.isInGroup = function(uid, gid, res) {
     }
   })
 }
+
+// 用户详情
+exports.userDetial = function(id, res) {
+  let wherestr = { '_id': id }
+  let out = { 'psw': 0 }
+  User.findOne(wherestr, out, function(err, result) {
+    if(err) {
+      res.send({ status: 500 })
+    } else {
+      res.send({
+        status: 200,
+        result,
+      })
+    }
+  })
+}
+
+// 用户信息修改
+exports.userUpdate = function(data, res) {
+  let updateStr = {}
+
+  // 判断是否有密码项
+  if(typeof(data.pwd) != 'undefined') {
+    // 有密码进行匹配
+    User.find({'_id': data.id}, {'psw': 1 }, function(err, result) {
+      if(err) {
+        res.send({ status: 500 })
+      } else {
+        if(result == '') {
+          res.send({ status: 400 })
+        }
+        result.map((e)=> {
+          const pwdMatch = bcrypt.verification(data.pwd, e.psw)
+          if (pwdMatch) {
+            // 密码验证成功
+            // 如果为修改密码先加密
+            if(data.type == 'psw') {
+              // 密码加密
+              let password = bcrypt.encryption(data.data)
+              updateStr[data.type] = password
+            } else {
+              updateStr[data.type] = data.data
+            }
+            User.findByIdAndUpdate(data.id, updateStr, function(err, resu) {
+              if(err) {
+                res.send({ status: 500 })
+              } else {
+                // 修改成功
+                res.send({ status: 200 })
+              }
+            })
+          } else {
+            // 密码匹配失败
+            res.send({ status: 400 })
+          }
+        })
+      }
+    })
+  } else {
+    updateStr[data.type] = data.data
+    User.findByIdAndUpdate(data.id, updateStr, function(err, resu) {
+      if(err) {
+        res.send({ status: 500 })
+      } else {
+        // 修改成功
+        res.send({ status: 200 })
+      }
+    })
+  }
+}
+
+// 获取好友备注
+exports.getMarkName = function(data, res) {
+  let wherestr = {
+    'userID': data.uid,
+    'friendID': data.fid,
+  }
+  let out = { 'markname': 1 }
+  Friend.findOne(wherestr, out, function(err, result) {
+    if(err) {
+      res.send({ status: 500 })
+    } else {
+      res.send({ 
+        status: 200,
+        result,
+      })
+    }
+  })
+}
+
+// 修改好友备注
+exports.friendMarkName = function(data, res) {
+  let wherestr = {
+    'userID': data.uid,
+    'friendID': data.fid,
+  }
+  let updatestr = {
+    'markname': data.name
+  }
+  Friend.updateOne(wherestr, updatestr, function(err, result) {
+    if(err) {
+      res.send({ status: 500 })
+    } else {
+      // 修改成功
+      res.send({ status: 200 })
+    }
+  })
+}

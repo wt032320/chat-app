@@ -55,7 +55,7 @@ var GroupUserSchema = new Schema({
   shield: { type: Number },                                           // 是否屏蔽消息
 })
 
-// 群消息消息表
+// 群消息表
 var GroupMessageSchema = new Schema({
   groupID: { type: Schema.Types.ObjectId, ref: 'Group' },             // 群ID
   userID: { type: Schema.Types.ObjectId, ref: 'User' },               // 发送者ID

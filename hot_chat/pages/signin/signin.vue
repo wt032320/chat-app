@@ -7,7 +7,7 @@
 			</view>
 		</view>
 		<!-- logo -->
-		<view class="logo">
+		<view class="logo" @tap="testFun1">
 			<image src="../../static/images/sign/logo1.png"></image>
 		</view>
 		
@@ -51,9 +51,25 @@
 			// 后端接口测试
 			testFun: function() {
 				uni.request({
+					url: 'http://127.0.0.1:8081/user/update',
+					data: {
+						id: '60894f4fa04edb7a6496ee3b',
+						data: '1476081727@qq.com',
+						type: 'email',
+						pwd: '333333'
+					},
+					method: 'POST',
+					success: (data) => {
+						// this.token = data.data.back.token
+						console.log(data)
+					}
+				})
+			},
+			testFun1: function() {
+				uni.request({
 					url: 'http://127.0.0.1:8081/search/user',
 					data: {
-						data: '小',
+						data: '小耿OvO',
 					},
 					method: 'POST',
 					success: (data) => {
