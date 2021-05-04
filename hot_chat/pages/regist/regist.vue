@@ -15,12 +15,12 @@
 			<view class="title">注册</view>
 			<view class="inputs">
 				<view class="inputs-div">
-					<input type="text" placeholder="请取个名字" class="username" placeholder-style="color:#aaa; font-weight:400" @input="getUser"/>
+					<input type="text" placeholder="请取个名字" class="username" placeholder-style="color:#aaa; font-weight:400" @blur="matchUser"/>
 					<view class="employ" v-if="useremploy">已占用</view>
 					<image src="../../static/images/sign/right1.png" class="ok" v-if="isuser"></image>
 				</view>
 				<view class="inputs-div">
-					<input type="text" placeholder="请输入邮箱" class="useremail" placeholder-style="color:#aaa;font-weight:400" @input="isEmail"/>
+					<input type="text" placeholder="请输入邮箱" class="useremail" placeholder-style="color:#aaa;font-weight:400" @blur="isEmail"/>
 					<view class="employ" v-if="emailemploy">已占用</view>
 					<view class="invalid" v-if="invalid">邮箱无效</view>
 					<image src="../../static/images/sign/right1.png" class="ok" v-if="isemail"></image>
@@ -32,7 +32,7 @@
 				
 			</view>
 		</view>
-		<view :class="[{submit:isok}, {submit1:!isok}]">注册</view>
+		<view :class="[{submit:isok}, {submit1:!isok}]" @tap="signUp">注册</view>
 	</view>
 </template>
 
@@ -41,8 +41,8 @@
 		data() {
 			return {
 				type: 'password',
-				isuser: true, // 用户名是否可用
-				isemail: true, // 邮箱是否可用
+				isuser: false, // 用户名是否可用
+				isemail: false, // 邮箱是否可用
 				look: false, // 是否显示密码
 				invalid: false, // 邮箱是否符合
 				useremploy: false, // 用户名是否占有
@@ -52,6 +52,17 @@
 				user: '', // 用户名
 				email: '', // 邮箱
 				psw: '', // 密码
+			}
+		},
+		computed: {
+			// 判断该注册了
+			isOk: function() {
+				let that = this
+				if (that.isuser && that.isemail && that.psw.length > 5) {
+					that.isok = true
+				} else {
+					that.isok = false
+				}
 			}
 		},
 		methods: {
@@ -74,11 +85,20 @@
 				if (this.email.length > 0) {
 					if(reg.test(this.email)) {
 						this.invalid = false
+						// 后端验证邮箱是否被占用
+						this.matchEmail()
 					} else {
 						this.invalid = true
+						this.emailemploy = false
+						this.isemail = false
 					}
+				} else {
+					this.invalid = false
+					this.emailemploy = false
+					this.isemail = false
+					this.isOk
 				}
-				this.isOk()
+				this.isOk
 			},
 			// 返回登录页
 			backOne: function() {
@@ -86,22 +106,114 @@
 					delta: 1
 				})
 			},
-			// 获取用户名
-			getUser: function(e) {
+			// 匹配邮箱
+			matchEmail: function() {
+				uni.request({
+					url: this.serverUrl + '/regist/judge',
+					data: {
+						data: this.email,
+						type: 'email',
+					},
+					method: 'POST',
+					success: (data) => {
+						// console.log(data)
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							let res = data.data.result
+							if (res > 0) {
+								// 表示邮箱已存在
+								this.emailemploy = true
+								this.isemail = false
+							} else {
+								// 表示邮箱不存在
+								this.emailemploy = false
+								this.isemail = true
+							}
+							this.isOk
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						}
+					}
+				})
+			},
+			// 匹配用户名
+			matchUser: function(e) {
 				this.user = e.detail.value
-				this.isOk()
+				if(this.user.length > 0) {
+					uni.request({
+						url: this.serverUrl + '/regist/judge',
+						data: {
+							data: this.user,
+							type: 'name',
+						},
+						method: 'POST',
+						success: (data) => {
+							let status = data.data.status
+							// 访问后端成功
+							if(status == 200) {
+								let res = data.data.result
+								if (res > 0) {
+									// 表示用户名已存在
+									this.useremploy = true
+									this.isuser = false
+								} else {
+									// 表示用户不存在
+									this.useremploy = false
+									this.isuser = true
+								}
+								this.isOk
+							} else if (status == 500) {
+								uni.showToast({
+									title: '服务器出错啦！',
+									icon: 'none',
+									duration: 2000
+								})
+							}
+						}
+					})
+				} else {
+					this.useremploy = false
+					this.isuser = false
+					this.isOk
+				}
 			},
 			// 获取密码
 			getPsw: function(e) {
 				this.psw = e.detail.value
-				this.isOk()
+				this.isOk
 			},
-			// 判断该注册了
-			isOk: function() {
-				if (this.isuser && this.isemail && this.psw.length > 5) {
-					this.isok = true
-				} else {
-					this.isok = false
+			// 注册提交
+			signUp: function() {
+				if(this.isok) {
+					uni.request({
+						url: 'http://127.0.0.1:8081/regist/add',
+						data: {
+							name: this.user,
+							mail: this.email,
+							pwd: this.psw,
+						},
+						method: 'POST',
+						success: (data) => {
+							let status = data.data.status
+							if (status == 200) {
+								// 注册成功跳转到登录页
+								uni.navigateTo({
+									url: '../signin/signin?user=' + this.user
+								})
+							} else if (status == 500) {
+								uni.showToast({
+									title: '服务器出错啦!',
+									icon: 'none',
+									duration: 2000
+								})
+							}
+						}
+					})
 				}
 			}
 		}

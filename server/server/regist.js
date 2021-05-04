@@ -1,4 +1,5 @@
 var dbserver = require('../dom/dbserver')
+var email = require('../dom/emailserver')
 
 // 用户注册
 exports.signUp = function(req, res) {
@@ -6,7 +7,9 @@ exports.signUp = function(req, res) {
   let mail = req.body.mail
   let pwd = req.body.pwd
 
-  // res.send({name, mail, pwd})
+  // 发送邮件
+  email.emailSignUp(mail, res)
+
   dbserver.buildUser(name, mail, pwd, res)
 }
 
@@ -15,6 +18,5 @@ exports.judgeValue = function(req, res) {
   let data = req.body.data
   let type = req.body.type
 
-  res.send({data, type})
   dbserver.countUserValue(data, type, res)
 }

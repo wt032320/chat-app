@@ -15,7 +15,7 @@
 			<view class="title">登录</view>
 			<view class="slogan">您好，欢迎来到 W.W!</view>
 			<view class="inputs">
-				<input type="text" placeholder="用户名/邮箱" class="user" placeholder-style="color:#aaa; font-weight:400" @blur="getUser"/>
+				<input type="text" v-model="user" placeholder="用户名/邮箱" class="user" placeholder-style="color:#aaa; font-weight:400" @blur="getUser"/>
 				<input type="password" placeholder="密码" class="psw" placeholder-style="color:#aaa; font-weight:400" @blur="getPassword"/>
 			</view>
 			<view class="tip">输入用户名或密码错误</view>
@@ -31,6 +31,16 @@
 				user: '', // 用户名/邮箱
 				psw: '', // 密码
 				token: '',
+			}
+		},
+		onLoad: function(e) {
+			if (e.user) {
+				this.user = e.user
+				uni.showToast({
+					title: '注册成功请登录',
+					icon: 'none',
+					duration: 2000
+				})
 			}
 		},
 		methods: {
@@ -67,9 +77,10 @@
 			},
 			testFun1: function() {
 				uni.request({
-					url: 'http://127.0.0.1:8081/search/user',
+					url: 'http://127.0.0.1:8081/regist/judge',
 					data: {
-						data: '小耿OvO',
+						data: '小虎',
+						type: 'name',
 					},
 					method: 'POST',
 					success: (data) => {
