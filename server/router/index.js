@@ -9,6 +9,8 @@ var login = require('../server/login')
 var search = require('../server/search')
 // 详情页服务
 var detial = require('../server/userdetial')
+// 好友服务
+var friend = require('../server/friend')
 
 module.exports = function (app) {
   app.get('/test', (req, res) => {
@@ -74,6 +76,21 @@ module.exports = function (app) {
   app.post('/friend/getname', (req, res) => {
     detial.getMarkName(req, res)
   })
+  
+  // 好友操作
+  // 申请好友
+  app.post('/friend/apply', (req, res) => {
+    friend.applyFriend(req, res)
+  })
+  // 好友状态修改
+  app.post('/friend/newstate', (req, res) => {
+    friend.updateFriendState(req, res)
+  })
+  // 拒绝好友或删除好友
+  app.post('/friend/delete', (req, res) => {
+    friend.deleteFriend(req, res)
+  })
+
 
   // token测试
   // app.post('/login/test', (req, res) => {

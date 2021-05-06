@@ -23,6 +23,7 @@ var FriendSchema = new Schema({
   state: { type: Number },                                            // 好友状态 (0表示已为好友 1表示申请中 2表示申请已发送，对方未同意)
   markname: { type: String },                                         // 好友备注
   time: { type: Date },                                               // 生成时间
+  lastTime: { type: Date },                                           // 最后通讯时间
 })
 
 // 一对一消息表
@@ -52,6 +53,7 @@ var GroupUserSchema = new Schema({
   name: { type: String },                                             // 群内名称
   tip: { type: Number, default: 0 },                                  // 未读消息数
   time: { type: Date },                                               // 加群时间
+  lastTime: { type: Date },                                           // 最后通讯时间
   shield: { type: Number },                                           // 是否屏蔽消息
 })
 

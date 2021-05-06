@@ -61,12 +61,14 @@
 			// 后端接口测试
 			testFun: function() {
 				uni.request({
-					url: 'http://127.0.0.1:8081/user/update',
+					url: 'http://127.0.0.1:8081/friend/newstate',
 					data: {
-						id: '60894f4fa04edb7a6496ee3b',
-						data: '1476081727@qq.com',
-						type: 'email',
-						pwd: '333333'
+						uid: '60894f4fa04edb7a6496ee3b',
+						fid: '608e9a9d2db50f6f14a6cc88',
+						// msg: '桥本有菜',
+						// data: '1476081727@qq.com',
+						// type: 'email',
+						// pwd: '333333'
 					},
 					method: 'POST',
 					success: (data) => {
