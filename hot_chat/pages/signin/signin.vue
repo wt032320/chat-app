@@ -15,12 +15,12 @@
 			<view class="title">登录</view>
 			<view class="slogan">您好，欢迎来到 W.W!</view>
 			<view class="inputs">
-				<input type="text" v-model="user" placeholder="用户名/邮箱" class="user" placeholder-style="color:#aaa; font-weight:400" @blur="getUser"/>
-				<input type="password" placeholder="密码" class="psw" placeholder-style="color:#aaa; font-weight:400" @blur="getPassword"/>
+				<input type="text" v-model="user" placeholder="用户名/邮箱" class="user" placeholder-style="color:#aaa; font-weight:400" />
+				<input type="password" v-model="psw" placeholder="密码" class="psw" placeholder-style="color:#aaa; font-weight:400" />
 			</view>
-			<view class="tip">输入用户名或密码错误</view>
+			<view class="tip" :style="{display: islook}">输入用户名或密码错误</view>
 		</view>
-		<view class="submit" @tap="testFun">登录</view>
+		<view class="submit" @tap="login">登录</view>
 	</view>
 </template>
 
@@ -28,9 +28,10 @@
 	export default {
 		data() {
 			return {
-				user: '', // 用户名/邮箱
-				psw: '', // 密码
+				user: '桃子', // 用户名/邮箱
+				psw: '111111', // 密码
 				token: '',
+				islook: 'none',
 			}
 		},
 		onLoad: function(e) {
@@ -50,47 +51,49 @@
 					url: '../regist/regist'
 				})
 			},
-			// 获取用户名
-			getUser: function(e) {
-				this.user = e.detail.value
-			},
-			// 获取密码
-			getPassword: function(e) {
-				this.psw = e.detail.value
-			},
-			// 后端接口测试
-			testFun: function() {
-				uni.request({
-					url: 'http://127.0.0.1:8081/friend/newstate',
-					data: {
-						uid: '60894f4fa04edb7a6496ee3b',
-						fid: '608e9a9d2db50f6f14a6cc88',
-						// msg: '桥本有菜',
-						// data: '1476081727@qq.com',
-						// type: 'email',
-						// pwd: '333333'
-					},
-					method: 'POST',
-					success: (data) => {
-						// this.token = data.data.back.token
-						console.log(data)
-					}
-				})
-			},
-			testFun1: function() {
-				uni.request({
-					url: 'http://127.0.0.1:8081/regist/judge',
-					data: {
-						data: '小虎',
-						type: 'name',
-					},
-					method: 'POST',
-					success: (data) => {
-						// this.token = data.data.back.token
-						console.log(data)
-					}
-				})
-			},
+			// 登录提交
+			login: function() {
+				if (this.user && this.psw) {
+					uni.request({
+						url: 'http://127.0.0.1:8081/login/match',
+						data: {
+							data: this.user,
+							pwd: this.psw,
+						},
+						method: 'POST',
+						success: (data) => {
+							let status = data.data.status
+							if (status == 200) {
+								// 登录成功
+								this.islook = 'none'
+								let res = data.data.back
+								// 本地存储用户信息
+								try {
+								  uni.setStorageSync('user', { 'id': res.id, 'name': res.name, 'imgurl': res.imgurl, 'token': res.token });
+								} catch (e) {
+								  // error
+									console.log('数据存储出错')
+								}
+								// 跳转到首页
+								uni.navigateTo({
+									url: '../index/index'
+								})
+							} else if (status == 400) {
+								// 用户匹配失败
+								this.islook = 'block'
+								this.psw = ''
+							} else if (status == 500) {
+								// 服务器失败
+								uni.showToast({
+									title: '服务器出错啦!',
+									icon: 'none',
+									duration: 2000
+								})
+							}
+						}
+					})
+				}
+			}
 		}
 	}
 </script>

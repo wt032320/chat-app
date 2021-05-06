@@ -2,8 +2,8 @@
 	<view class="content">
 		<!-- 首页顶部栏 -->
 		<view class="top-bar">
-			<navigator url="/pages/userhome/userhome?id=aaa" hover-class="none" class="top-bar-left">
-				<image src="../../static/images/test_imgs/two.png"></image>
+			<navigator :url="'/pages/userhome/userhome?id='+uid" hover-class="none" class="top-bar-left">
+				<image :src="imgurl"></image>
 			</navigator>
 
 			<view class="top-bar-center">
@@ -65,11 +65,15 @@
 	export default {
 		data() {
 			return {
-				friends: []
+				friends: [],
+				uid: '',  // 用户id
+				imgurl: '', // 用户头像
+				token: '',  // token
 			}
 		},
 		onLoad() {
       this.getFriends()
+			this.getStorages()
 		},
 		methods: {
       changeTime: function (date) {
@@ -82,6 +86,24 @@
           this.friends[i].imgurl = '../../static/images/test_imgs/' + this.friends[i].imgurl
         }
       },
+			// 获取缓存数据
+			getStorages: function() {
+				try {
+					const value = uni.getStorageSync('user');
+					if (value) {
+						this.uid = value.id
+						this.imgurl = this.serverUrl + '/user/' + value.imgurl
+						this.token = value.token
+					} else {
+						// 如果没有用户缓存，跳转到登录页
+						uni.navigateTo({
+							url: '../siginin/siginin'
+						})
+					}
+				} catch (e) {
+				   // error
+				}
+			},
 			// 跳转到好友请求页
 			toRequest: function() {
 				uni.navigateTo({

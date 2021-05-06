@@ -23,7 +23,11 @@ app.all('*', function(req, res, next) {
 })
 
 // 解析前端数据
-app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
+app.use(bodyParser.json({ limit: '50mb' }))
+
+// 获取静态路径
+app.use(express.static(__dirname + '/data'))
 
 // token判断
 app.use(function(req, res, next) {
@@ -45,6 +49,7 @@ app.use(function(req, res, next) {
 
 // 路由引入
 require('./router/index')(app)
+require('./router/files')(app)
 
 
 // 404页面
