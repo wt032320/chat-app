@@ -55,7 +55,7 @@
 			login: function() {
 				if (this.user && this.psw) {
 					uni.request({
-						url: 'http://127.0.0.1:8081/login/match',
+						url: this.serverUrl + '/login/match',
 						data: {
 							data: this.user,
 							pwd: this.psw,

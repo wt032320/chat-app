@@ -191,7 +191,7 @@
 			signUp: function() {
 				if(this.isok) {
 					uni.request({
-						url: 'http://127.0.0.1:8081/regist/add',
+						url: this.serverUrl + '/regist/add',
 						data: {
 							name: this.user,
 							mail: this.email,

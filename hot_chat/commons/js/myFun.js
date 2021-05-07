@@ -149,5 +149,21 @@ export default {
 		} else {
 			return ''
 		}
+	},
+	
+	// 搜索延时函数(防抖)
+	debunce(fn, t) {
+		let delay = t || 500
+		let timer
+		return function() {
+			let args = arguments
+			if(timer) {
+				clearTimeout(timer)
+			}
+			timer = setTimeout(() => {
+				timer = null
+				fn.apply(this, args)
+			}, delay)
+		}
 	}
 }
