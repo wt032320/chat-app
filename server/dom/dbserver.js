@@ -280,7 +280,7 @@ exports.userUpdate = function(data, res) {
                     update(data.id, updateStr, res)
                   } else {
                     // 已存在
-                    res.send({ status: 300 })
+                    res.send({ status: 201 })
                   }
                 }
               })
@@ -306,7 +306,7 @@ exports.userUpdate = function(data, res) {
           update(data.id, updateStr, res)
         } else {
           // 已存在
-          res.send({ status: 300 })
+          res.send({ status: 201 })
         }
       }
     })

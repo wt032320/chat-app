@@ -28,8 +28,8 @@
 	export default {
 		data() {
 			return {
-				user: '桃子', // 用户名/邮箱
-				psw: '111111', // 密码
+				user: '', // 用户名/邮箱
+				psw: '', // 密码
 				token: '',
 				islook: 'none',
 			}
@@ -39,6 +39,20 @@
 				this.user = e.user
 				uni.showToast({
 					title: '注册成功请登录',
+					icon: 'none',
+					duration: 2000
+				})
+			} else if(e.name) {
+				this.user = e.name
+				uni.showToast({
+					title: '登录过期请重新登录',
+					icon: 'none',
+					duration: 2000
+				})
+			} else if(e.cgpwd) {
+				this.user = e.cgpwd
+				uni.showToast({
+					title: '登录过期请重新登录',
 					icon: 'none',
 					duration: 2000
 				})

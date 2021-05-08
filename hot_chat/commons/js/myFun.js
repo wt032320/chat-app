@@ -150,6 +150,24 @@ export default {
 			return ''
 		}
 	},
+	// 详细时间
+	birthTime(date) {
+	  let old = new Date(date)
+	  // 获取old具体时间
+	  let Y = old.getFullYear()
+	  let M = old.getMonth() + 1
+	  let D = old.getDate()
+		
+		// 处理时间
+		if(M < 10) {
+			M = '0' + M
+		}
+		if(D < 10) {
+			D = '0' + D
+		}
+		
+		return Y + '-' + M + '-' + D
+	},
 	
 	// 搜索延时函数(防抖)
 	debunce(fn, t) {

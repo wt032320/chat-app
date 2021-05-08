@@ -22,5 +22,5 @@ exports.friendMarkName = function(req, res) {
 // 获取好友备注
 exports.getMarkName = function(req, res) {
   let data = req.body
-  dbserver.getMarkName(req, res)
+  dbserver.getMarkName(data, res)
 }

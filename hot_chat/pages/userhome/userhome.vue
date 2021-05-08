@@ -112,7 +112,7 @@
 							// 处理头像链接
 							res.imgurl = this.serverUrl + '/user/' + res.imgurl
 							// 处理简介
-							if(typeof(res.explain)) {
+							if(res.explain == undefined) {
 								res.explain = '这个人很懒，什么也没有留下~'
 							}
 							// 处理markname
@@ -194,7 +194,7 @@
 						// 访问后端成功
 						if(status == 200) {
 							let res = data.data.result
-							if(!typeof(res.markname)) {
+							if(res.markname != undefined) {
 								this.markname = res.markname
 							}
 						} else if (status == 500) {
@@ -216,7 +216,7 @@
 			// 跳转到详细信息页
 			toDetial: function() {
 				uni.navigateTo({
-					url: '../userdetials/userdetials'
+					url: '../userdetials/userdetials?id=' + this.id
 				})
 			},
 			// 动态获取页面高度
