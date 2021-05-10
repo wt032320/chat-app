@@ -439,12 +439,11 @@
 									url: '../siginin/siginin?cgpwd=' + this.myname
 								})
 								// 清除缓存
-								uni.removeStorage({
-									key: 'user',
-									success: function (res) {
-											// console.log('success');
-									}
-								})
+								try {
+								    uni.removeStorageSync('user');
+								} catch (e) {
+								    // error
+								}
 							} else {
 								this.user[itype] = udata
 								uni.showToast({
@@ -596,12 +595,11 @@
 					url: '../signin/signin'
 				})
 				// 清除缓存
-				uni.removeStorage({
-					key: 'user',
-					success: function (res) {
-							// console.log('success');
-					}
-				})
+				try {
+				    uni.removeStorageSync('user');
+				} catch (e) {
+				    // error
+				}
 			},
 			// 删除好友
 			deleteFriend: function() {

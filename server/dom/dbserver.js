@@ -11,6 +11,7 @@ var Friend = dbmodel.model('Friend') // 好友表
 var Group = dbmodel.model('Group') // 群表
 var GroupUser = dbmodel.model('GroupUser') // 群成员表
 var Message = dbmodel.model('Message') // 一对一消息表
+var GroupMessage = dbmodel.model('GroupMsg') // 群消息表
 
 // 新建用户
 exports.buildUser = function(name, mail, pswd, res) {
@@ -492,6 +493,177 @@ exports.deleteFriend = function(data, res) {
   }
   Friend.deleteMany(whereStr, (err, result) => {
     if (err) {
+      res.send({ status: 500 })
+    } else {
+      res.send({ status: 200 })
+    }
+  })
+}
+
+// 按要求获取用户列表
+exports.getUsers = function(data, res) {
+  let query = Friend.find({})
+  // 查询条件
+  query.where({ 'userID': data.uid, 'state': data.state })
+  // 查找friendID 关联的user对象
+  query.populate('friendID')
+  // 排序方式 最后通讯时间倒序排列
+  query.sort({ 'lastTime': -1 })
+  // 查询结果
+  query.exec().then(function(e) {
+    let result = e.map((ver)=> {
+      return {
+        id: ver.friendID._id,
+        name: ver.friendID.name,
+        markname: ver.markname,
+        imgurl: ver.friendID.imgurl,
+        lastTime: ver.lastTime,
+      }
+    })
+    res.send({
+      status: 200,
+      result,
+    })
+  }).catch(err => {
+    res.send({ status: 500 })
+  })
+}
+
+// 按要求获取一条一对一消息
+exports.getOneMessage = function(data, res) {
+  let query = Message.findOne({})
+  // 查询条件
+  query.where({
+    $or:[
+      {
+        'userID': data.uid,
+        'friendID': data.fid,
+      },
+      {
+        'userID': data.fid,
+        'friendID': data.uid,
+      }
+    ]
+  })
+  // 排序方式 最后通讯时间倒序排列
+  query.sort({ 'time': -1 })
+  // 查询结果
+  query.exec().then(function(e) {
+    let result = {
+      message: e.message,
+      time: e.time,
+      types: e.types,
+    }
+    res.send({ status: 200, result })
+  }).catch(err => {
+    res.send({ status: 500 })
+  })
+}
+
+// 汇总一对一消息未读数
+exports.unreadMsg = function(data, res) {
+  // 汇总条件
+  let whereStr = { 
+    'userID': data.uid,
+    'friendID': data.fid,
+    'state': 1,
+  }
+  Message.countDocuments(whereStr, (err, result) => {
+    if(err) {
+      res.send({ status: 500 })
+    } else {
+      res.send({
+        status: 200,
+        result
+      })
+    }
+  })
+}
+
+// 一对一消息状态修改
+exports.readedMsg = function(data, res) {
+  // 汇总条件
+  let whereStr = { 
+    'userID': data.uid,
+    'friendID': data.fid,
+    'state': 1,
+  }
+  // 修改内容
+  let updateStr = { 'state': 0 }
+  Message.updateMany(whereStr, updateStr, (err, result) => {
+    if(err) {
+      res.send({ status: 500 })
+    } else {
+      res.send({ status: 200 })
+    }
+  })
+}
+
+// 按要求获取群列表
+exports.getGroup = function(uid, res) {
+  // uid 为用户，所在的群
+  let query = GroupUser.find({})
+  // 查询条件
+  query.where({ 'userID': uid })
+  // 查找groupID 关联的group对象
+  query.populate('groupID')
+  // 排序方式 最后通讯时间倒序排列
+  query.sort({ 'lastTime': -1 })
+  // 查询结果
+  query.exec().then(function(e) {
+    let result = e.map((ver)=> {
+      return {
+        gid: ver.groupID._id,
+        name: ver.groupID.name, // 群名
+        markname: ver.name, // 群内昵称
+        imgurl: ver.groupID.imgurl,
+        lastTime: ver.lastTime,
+        tip: ver.tip,  // 未读消息数
+      }
+    })
+    res.send({
+      status: 200,
+      result,
+    })
+  }).catch(err => {
+    res.send({ status: 500 })
+  })
+}
+
+// 按要求获取群消息
+exports.getOneGroupMsg = function(gid, res) {
+  let query = GroupMessage.findOne({})
+  // 查询条件
+  query.where({ 'groupID': gid })
+   // 关联的user对象
+  query.populate('userID')
+  // 排序方式 最后通讯时间倒序排列
+  query.sort({ 'time': -1 })
+  // 查询结果
+  query.exec().then(function(e) {
+    let result = {
+      message: e.message,
+      time: e.time,
+      types: e.types,
+      name: ver.userID.name, // 谁发的
+    }
+    res.send({ status: 200, result })
+  }).catch(err => {
+    res.send({ status: 500 })
+  })
+}
+
+// 群消息状态修改
+exports.updateGroupMsg = function(data, res) {
+  // 汇总条件
+  let whereStr = { 
+    'userID': data.uid,
+    'groupID': data.fid,
+  }
+  // 修改内容
+  let updateStr = { 'tip': 0 }
+  GroupMessage.updateOne(whereStr, updateStr, (err, result) => {
+    if(err) {
       res.send({ status: 500 })
     } else {
       res.send({ status: 200 })

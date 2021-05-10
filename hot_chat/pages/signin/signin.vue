@@ -76,6 +76,7 @@
 						},
 						method: 'POST',
 						success: (data) => {
+							// console.log(data)
 							let status = data.data.status
 							if (status == 200) {
 								// 登录成功

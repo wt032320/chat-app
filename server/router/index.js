@@ -11,6 +11,8 @@ var search = require('../server/search')
 var detial = require('../server/userdetial')
 // 好友服务
 var friend = require('../server/friend')
+// 主页
+var home = require('../server/home')
 
 module.exports = function (app) {
   app.get('/test', (req, res) => {
@@ -89,6 +91,36 @@ module.exports = function (app) {
   // 拒绝好友或删除好友
   app.post('/friend/delete', (req, res) => {
     friend.deleteFriend(req, res)
+  })
+
+  // 主页
+  // 获取好友
+  app.post('/index/friends', (req, res) => {
+    home.getFriend(req, res)
+  })
+  // 获取最后一条消息
+  app.post('/index/endmessage', (req, res) => {
+    home.getEndMsg(req, res)
+  })
+  // 获取未读消息数
+  app.post('/index/msgnumber', (req, res) => {
+    home.unreadMsg(req, res)
+  })
+  // 好友消息标已读
+  app.post('/index/messaged', (req, res) => {
+    home.updateMsg(req, res)
+  })
+  // 获取群
+  app.post('/index/groups', (req, res) => {
+    home.getGroup(req, res)
+  })
+  // 获取最后一条群消息
+  app.post('/index/groupmsg', (req, res) => {
+    home.getOneGroupMsg(req, res)
+  })
+  // 群消息标已读
+  app.post('/index/groupmsged', (req, res) => {
+    home.updateGroupMsg(req, res)
   })
 
 
