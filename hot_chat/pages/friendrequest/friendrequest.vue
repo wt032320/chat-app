@@ -16,21 +16,21 @@
 		<view class="main">
 			<view class="requester" v-for="(item,index) in requesters" :key="index">
 				<view class="request-top">
-					<view class="reject btn">拒绝</view>
+					<view class="reject btn" @tap="refuse(item.id)">拒绝</view>
 					<view class="header-img">
 						<image :src="item.imgurl"></image>
 					</view>	
-					<view class="agree btn">同意</view>
+					<view class="agree btn" @tap="agree(item.id)">同意</view>
 				</view>
 				
 				<view class="request-center">
 					<view class="title">{{item.name}}</view>
-					<view class="time">{{changeTime(item.time)}}</view>
+					<view class="time">{{changeTime(item.lastTime)}}</view>
 				</view>
 				
 				<view class="notic">
 					<text>留言：</text>
-					{{item.message}}
+					{{item.msg}}
 				</view>
 			</view>
 		</view>
@@ -38,29 +38,183 @@
 </template>
 
 <script>
-	import datas from '../../commons/js/datas';
 	import myfun from '../../commons/js/myFun';
 
 	export default {
 		data() {
 			return {
 				requesters: [], // 好友请求数据
+				uid: '',  // 用户id
+				myname: '',
+				token: '',  // token
 			};
 		},
 		onLoad() {
-		  this.getRequesters()
+			this.getStorages()
+			this.friendRequest()
 		},
 		// 获取时间修改
 		methods: {
 			changeTime: function (date) {
 			  return myfun.dataTime(date);
 			},
-			// 获取好友
-			getRequesters:function () {
-			  this.requesters = datas.friends()
-			  for (let i = 0; i < this.requesters.length; i++) {
-			    this.requesters[i].imgurl = '../../static/images/test_imgs/' + this.requesters[i].imgurl
-			  }
+			// 获取缓存数据
+			getStorages: function() {
+				try {
+					const value = uni.getStorageSync('user');
+					if (value) {
+						this.uid = value.id
+						this.myname = value.name
+						this.token = value.token
+					} else {
+						// 如果没有用户缓存，跳转到登录页
+						uni.navigateTo({
+							url: '../siginin/siginin'
+						})
+					}
+				} catch (e) {
+				   // error
+				}
+			},
+			// 好友申请列表数据
+			friendRequest: function() {
+				uni.request({
+					url: this.serverUrl + '/index/friends',
+					data: {
+						uid: this.uid,
+						state: 1,
+						token: this.token,
+					},
+					method: 'POST',
+					success: (data) => {
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							let res = data.data.result
+							for (let i = 0; i < res.length; i++) {
+								res[i].imgurl = this.serverUrl + '/user/' + res[i].imgurl
+								this.getMessage(res, i)
+							}
+							this.requesters = res
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
+						}
+					}
+				})
+			},
+			// 获取留言
+			getMessage: function(arr, i) {
+				uni.request({
+					url: this.serverUrl + '/index/endmessage',
+					data: {
+						uid: this.uid,
+						fid: arr[i].id,
+						token: this.token,
+					},
+					method: 'POST',
+					success: (data) => {
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							let res = data.data.result
+							let e = arr[i]
+							e.msg = res.message
+							arr.splice(i, 1, e)
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
+						}
+					}
+				})
+			},
+			// 拒绝好友申请
+			refuse: function(fid) {
+				uni.request({
+					url: this.serverUrl + '/friend/delete',
+					data: {
+						uid: this.uid,
+						fid: fid,
+						token: this.token,
+					},
+					method: 'POST',
+					success: (data) => {
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							for (let i = 0; i < this.requesters.length; i++) {
+								if (this.requesters[i].id == fid) {
+									this.requesters.splice(i, 1)
+								}
+							}
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
+						}
+					}
+				})
+			},
+			// 同意好友申请
+			agree: function(fid) {
+				uni.request({
+					url: this.serverUrl + '/friend/newstate',
+					data: {
+						uid: this.uid,
+						fid: fid,
+						token: this.token,
+					},
+					method: 'POST',
+					success: (data) => {
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							for (let i = 0; i < this.requesters.length; i++) {
+								if (this.requesters[i].id == fid) {
+									this.requesters.splice(i, 1)
+								}
+							}
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
+						}
+					}
+				})
 			},
 			// 返回上一页
 			backOne: function() {

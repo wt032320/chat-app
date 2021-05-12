@@ -23,16 +23,16 @@
 		<!-- 消息列表 -->
 		<view class="main">
 			<!-- 好友申请 -->
-			<view class="apply" @tap="toRequest">
+			<view class="apply" @tap="toRequest" v-if="requestData>0">
 				<view class="friend-list">
 					<view class="friend-list-left">
-						<text class="tips">1</text>
+						<text class="tips">{{requestData}}</text>
 						<image src="../../static/images/index/apply.png"></image>
 					</view>
 					<view class="friend-list-right">
 						<view class="top">
 							<view class="name">好友申请</view>
-							<view class="time">14:23</view>
+							<view class="time">{{changeTime(requestTime)}}</view>
 						</view>
 						<view class="message">茫茫人海，相聚便是缘分</view>
 					</view>
@@ -69,11 +69,15 @@
 				uid: '',  // 用户id
 				imgurl: '', // 用户头像
 				token: '',  // token
+				myname: '',
+				requestData: 0, // 申请数
+				requestTime: '', // 最后申请时间
 			}
 		},
 		onLoad() {
       this.getFriends()
 			this.getStorages()
+			this.friendRequest()
 		},
 		methods: {
       changeTime: function (date) {
@@ -86,6 +90,46 @@
           this.friends[i].imgurl = '../../static/images/test_imgs/' + this.friends[i].imgurl
         }
       },
+			friendRequest: function() {
+				uni.request({
+					url: this.serverUrl + '/index/friends',
+					data: {
+						uid: this.uid,
+						state: 1,
+						token: this.token,
+					},
+					method: 'POST',
+					success: (data) => {
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							let res = data.data.result
+							this.requestData = res.length
+							if (res.length > 0) {
+								this.requestTime = res[0].lastTime
+								for (let i = 1; i < res.length; i++) {
+									if(this.requestTime < res[i].lastTime) {
+										this.requestTime = res[i].lastTime
+									}
+								}
+							}
+							// console.log(res)
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
+						}
+					}
+				})
+			},
 			// 获取缓存数据
 			getStorages: function() {
 				try {
@@ -94,6 +138,7 @@
 						this.uid = value.id
 						this.imgurl = this.serverUrl + '/user/' + value.imgurl
 						this.token = value.token
+						this.myname = value.name
 					} else {
 						// 如果没有用户缓存，跳转到登录页
 						uni.navigateTo({
