@@ -127,6 +127,12 @@
 								icon: 'none',
 								duration: 2000
 							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
 						}
 					}
 				})

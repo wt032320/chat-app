@@ -22,6 +22,15 @@
 		
 		<!-- 消息列表 -->
 		<view class="main">
+			<view class="refresh" v-if="!refresh">
+				<image src="../../static/images/index/refresh.png"></image>
+				<view class="ref-title">下拉刷新</view>
+			</view>
+			<view class="none" v-if="noone">
+				<image src="../../static/images/index/noone.png" mode="aspectFill"></image>
+				<view class="no-title">你还没有好友</view>
+				<view class="search-btn" @tap="toSearch">搜索好友</view>
+			</view>
 			<!-- 好友申请 -->
 			<view class="apply" @tap="toRequest" v-if="requestData>0">
 				<view class="friend-list">
@@ -48,9 +57,9 @@
 					<view class="friend-list-right">
 						<view class="top">
 							<view class="name">{{item.name}}</view>
-							<view class="time">{{changeTime(item.time)}}</view>
+							<view class="time">{{changeTime(item.lastTime)}}</view>
 						</view>
-						<view class="message">{{item.message}}</view>
+						<view class="message">{{item.msg}}</view>
 					</view>
 				</view>
 			</view>
@@ -72,24 +81,30 @@
 				myname: '',
 				requestData: 0, // 申请数
 				requestTime: '', // 最后申请时间
+				refresh: false, // 下拉刷新状态
+				noone: false, // 是否没有好友
 			}
 		},
 		onLoad() {
-      this.getFriends()
 			this.getStorages()
 			this.friendRequest()
+			this.getFriends()
+		},
+		// 下拉刷新
+		onPullDownRefresh() {
+			this.friends = []
+			this.getStorages()
+			this.friendRequest()
+			this.getFriends()
+			setTimeout(function () {
+					uni.stopPullDownRefresh()
+			}, 1000)
 		},
 		methods: {
       changeTime: function (date) {
         return myfun.dataTime(date);
       },
-			// 获取消息列表
-      getFriends:function () {
-        this.friends = datas.friends()
-        for (let i = 0; i < this.friends.length; i++) {
-          this.friends[i].imgurl = '../../static/images/test_imgs/' + this.friends[i].imgurl
-        }
-      },
+			// 获取好友请求数据
 			friendRequest: function() {
 				uni.request({
 					url: this.serverUrl + '/index/friends',
@@ -100,9 +115,11 @@
 					},
 					method: 'POST',
 					success: (data) => {
+						this.refresh = true
 						let status = data.data.status
 						// 访问后端成功
 						if(status == 200) {
+							this.noone = false
 							let res = data.data.result
 							this.requestData = res.length
 							if (res.length > 0) {
@@ -112,8 +129,181 @@
 										this.requestTime = res[i].lastTime
 									}
 								}
+							} else {
+								this.noone = true
 							}
 							// console.log(res)
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
+						}
+					}
+				})
+			},
+			// 获取好友数据
+			getFriends: function() {
+				uni.request({
+					url: this.serverUrl + '/index/friends',
+					data: {
+						uid: this.uid,
+						state: 0,
+						token: this.token,
+					},
+					method: 'POST',
+					success: (data) => {
+						this.refresh = true
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							this.noone = false
+							let res = data.data.result
+							if (res.length > 0) {
+								for (let i = 0; i < res.length; i++) {
+									res[i].imgurl = this.serverUrl + '/user/' + res[i].imgurl
+									if (res[i].markname) {
+										res[i].name = res[i].markname
+									}
+									this.friends.push(res[i])
+								}
+								this.friends = myfun.sortArr(this.friends, 'lastTime', 0)
+								// 获取好友信息
+								for (let i = 0; i < this.friends.length; i++) {
+									this.getMessage(this.friends, i)
+									this.getUnread(this.friends, i)
+								}
+							} else {
+								this.noone = true
+							}
+							// 群列表
+							// this.getGroups()
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
+						}
+					}
+				})
+			},
+			// 获取最后消息
+			getMessage: function(arr, i) {
+				uni.request({
+					url: this.serverUrl + '/index/endmessage',
+					data: {
+						uid: this.uid,
+						fid: arr[i].id,
+						token: this.token,
+					},
+					method: 'POST',
+					success: (data) => {
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							let res = data.data.result
+							if(res.types == 0) {
+								// 文字类型消息
+							} else if (res.types == 1) {
+								// 图片
+								res.message = '[图片]'
+							} else if (res.types == 2) {
+								// 音频
+								res.message = '[语音消息]'
+							} else if (res.types == 3) {
+								// 位置
+								res.message = '[位置]'
+							} 
+							let e = arr[i]
+							e.msg = res.message
+							arr.splice(i, 1, e)
+							// console.log(res)
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
+						}
+					}
+				})
+			},
+			// 获取未读消息数
+			getUnread: function(arr, i) {
+				uni.request({
+					url: this.serverUrl + '/index/msgnumber',
+					data: {
+						uid: this.uid,
+						fid: arr[i].id,
+						token: this.token,
+					},
+					method: 'POST',
+					success: (data) => {
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							let res = data.data.result
+							let e = arr[i]
+							e.tips = res
+							arr.splice(i, 1, e)
+							// console.log(res)
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
+						}
+					}
+				})
+			},
+			// 获取群列表
+			getGroups: function() {
+				uni.request({
+					url: this.serverUrl + '/index/groups',
+					data: {
+						uid: this.uid,
+						token: this.token,
+					},
+					method: 'POST',
+					success: (data) => {
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							let res = data.data.result
+							if (res.length > 0) {
+								for (let i = 0; i < res.length; i++) {
+									res[i].imgurl = this.serverUrl + '/user/' + res[i].imgurl
+									this.friends.push(res[i])
+								}
+							}
+							this.friends = myfun.sortArr(this.friends, 'lastTime', 0)
 						} else if (status == 500) {
 							uni.showToast({
 								title: '服务器出错啦！',
@@ -181,6 +371,46 @@
 		}
 		.main {
 			padding-top: 104rpx;
+		}
+		.refresh {
+			text-align: center;
+			padding-top: 480rpx;
+			image {
+				width: 32rpx;
+				height: 32rpx;
+			}
+			.ref-title {
+				padding-top: 10rpx;
+				font-size: $uni-font-size-base;
+				color: rgba(39,40,50,0.4);
+				line-height: 40rpx;
+			}
+		}
+		.none {
+			padding-top: 400rpx;
+			text-align: center;
+			image {
+				width: 158rpx;
+				height: 250rpx;
+			}
+			.no-title {
+				padding-top: 32rpx 0;
+				padding-bottom: 32rpx;
+				font-size: $uni-font-size-base;
+				color: rgba(39,40,50,0.4);
+				line-height: 40rpx;
+			}
+			.search-btn {
+				display: inline-block;
+				width: 240rpx;
+				height: 96rpx;
+				background-color: $uni-color-primary;
+				box-shadow: 0 52rpx 36rpx -32rpx rgba(255,228,49,0.4);
+				border-radius: 48rpx;
+				font-size: $uni-font-size-base;
+				color: $uni-text-color;
+				line-height: 96rpx;
+			}
 		}
 		.friend-list {
 			height: 96rpx;
