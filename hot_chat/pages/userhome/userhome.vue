@@ -110,7 +110,7 @@
 						if(status == 200) {
 							let res = data.data.result
 							// 处理头像链接
-							res.imgurl = this.serverUrl + '/user/' + res.imgurl
+							res.imgurl = this.serverUrl + res.imgurl
 							// 处理简介
 							if(res.explain == undefined) {
 								res.explain = '这个人很懒，什么也没有留下~'

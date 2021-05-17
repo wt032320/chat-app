@@ -7,6 +7,12 @@ const express = require('express')
 const app = express()
 const port = 8081
 
+// socket.io
+const io = require('socket.io')(8082)
+io.on('connection', (socket) => {
+  // console.log('链接成功')
+})
+
 //设置跨域访问
 app.all('*', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*")

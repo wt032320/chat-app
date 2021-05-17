@@ -92,7 +92,7 @@
 						if(status == 200) {
 							let res = data.data.result
 							for (let i = 0; i < res.length; i++) {
-								res[i].imgurl = this.serverUrl + '/user/' + res[i].imgurl
+								res[i].imgurl = this.serverUrl + res[i].imgurl
 								this.getMessage(res, i)
 							}
 							this.requesters = res

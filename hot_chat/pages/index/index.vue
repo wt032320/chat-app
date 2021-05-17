@@ -49,7 +49,7 @@
 			</view>
 			<!-- 消息 -->
 			<view class="friends">
-				<view class="friend-list" v-for="(item, index) in friends" :key="index" @tap="toChat">
+				<view class="friend-list" v-for="(item, index) in friends" :key="index" @tap="toChat(item)">
 					<view class="friend-list-left">
 						<text class="tips" v-if="item.tips>0">{{item.tips}}</text>
 						<image :src="item.imgurl"></image>
@@ -68,7 +68,6 @@
 </template>
 
 <script>
-  import datas from '../../commons/js/datas';
   import myfun from '../../commons/js/myFun';
 
 	export default {
@@ -168,7 +167,7 @@
 							let res = data.data.result
 							if (res.length > 0) {
 								for (let i = 0; i < res.length; i++) {
-									res[i].imgurl = this.serverUrl + '/user/' + res[i].imgurl
+									res[i].imgurl = this.serverUrl + res[i].imgurl
 									if (res[i].markname) {
 										res[i].name = res[i].markname
 									}
@@ -299,7 +298,7 @@
 							let res = data.data.result
 							if (res.length > 0) {
 								for (let i = 0; i < res.length; i++) {
-									res[i].imgurl = this.serverUrl + '/user/' + res[i].imgurl
+									res[i].imgurl = this.serverUrl + res[i].imgurl
 									this.friends.push(res[i])
 								}
 							}
@@ -326,7 +325,7 @@
 					const value = uni.getStorageSync('user');
 					if (value) {
 						this.uid = value.id
-						this.imgurl = this.serverUrl + '/user/' + value.imgurl
+						this.imgurl = this.serverUrl + value.imgurl
 						this.token = value.token
 						this.myname = value.name
 					} else {
@@ -352,9 +351,9 @@
 				})
 			},
 			// 跳转到聊天页
-			toChat: function() {
+			toChat: function(data) {
 				uni.navigateTo({
-					url:'../chatroom/chatroom'
+					url:'../chatroom/chatroom?id=' + data.id + '&name=' + data.name + '&type=' + data.type
 				})
 			}
 		}

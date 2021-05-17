@@ -25,8 +25,11 @@ var upload = multer({ storage: storage })
 module.exports = function(app) {
   // 前端文件上传
   app.post('/files/upload', upload.array('file', 9), function (req, res, next) {
+    // 路径
+    let url = req.body.url
     // 获取文件名
     let name = req.files[0].filename
-    res.send(name)
+    let imgurl = '/' + url + '/' + name
+    res.send(imgurl)
   })
 }

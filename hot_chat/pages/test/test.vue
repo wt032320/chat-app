@@ -7,6 +7,8 @@
 </template>
 
 <script>
+	import myfun from '../../commons/js/myFun';
+
 	export default {
 		data() {
 			return {
@@ -31,6 +33,8 @@
 				})
 			},
 			upload: function() {
+				// 当前日期文件夹
+				let url = myfun.fileTime(new Date())
 				uni.chooseImage({
 					count: 9, //默认9
 					sizeType: ['original', 'compressed'], //可以指定是原图还是压缩图，默认二者都有
@@ -39,18 +43,18 @@
 						const tempFilePaths = chooseImageRes.tempFilePaths;
 						for (let i = 0; i < tempFilePaths.length; i++) {
 							const uploadTask = uni.uploadFile({
-								url: 'http://127.0.0.1:8081/files/upload', 
+								url: this.serverUrl + '/files/upload', 
 								filePath: tempFilePaths[i],
 								name: 'file',
 								formData: {
-										url: 'user',
+										url: url,
 										name: new Date().getTime()+ this.id + i
 								},
 								success: (uploadFileRes) => {
-							
-									let path = 'user/' + uploadFileRes.data
-									this.img.push('http://127.0.0.1:8081/' + path)
-									console.log(path);
+									console.log(uploadFileRes)
+									let path = this.serverUrl + uploadFileRes.data
+									this.img.push(path)
+									console.log(uploadFileRes.data);
 								}
 							});
 									

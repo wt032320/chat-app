@@ -13,6 +13,8 @@ var detial = require('../server/userdetial')
 var friend = require('../server/friend')
 // 主页
 var home = require('../server/home')
+// 聊天
+var chat = require('../server/chat')
 
 module.exports = function (app) {
   app.get('/test', (req, res) => {
@@ -123,7 +125,10 @@ module.exports = function (app) {
     home.updateGroupMsg(req, res)
   })
 
-
+  // 聊天页面
+  app.post('/chat/msg', (req, res) => {
+    chat.msg(req, res)
+  })
   // token测试
   // app.post('/login/test', (req, res) => {
   //   login.test(req, res)

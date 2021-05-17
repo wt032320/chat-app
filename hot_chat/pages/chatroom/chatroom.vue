@@ -6,7 +6,7 @@
 			</view>
 			<view class="top-bar-center">
 				<view class="title">
-					小耿OvO
+					{{fname}}
 				</view>
 			</view>
 			<view class="top-bar-right" @tap="toDetials">
@@ -20,9 +20,9 @@
 				<view class="loading" :class="{displaynone:!isloading}">
 					<image src="../../static/images/common/loading.png" class="loading-img" :animation="animationData"></image>
 				</view>
-				<view class="chat-ls" v-for="(item,index) in msgs" :key="index" :id="'msg' + item.tip">
+				<view class="chat-ls" v-for="(item,index) in msgs" :key="index" :id="'msg' + item.id">
 					<view class="chat-time" v-if="item.time!=''">{{changeTime(item.time)}}</view>
-					<view class="msg-m msg-left" v-if="item.id !== 'b'">
+					<view class="msg-m msg-left" v-if="item.senderId !== uid">
 						<image :src="item.imgurl" class="user-img"></image>
 						<!-- 文字 -->
 						<view class="message" v-if="item.types == 0">
@@ -49,7 +49,7 @@
 							</view>
 						</view>
 					</view>
-					<view class="msg-m msg-right" v-if="item.id === 'b'">
+					<view class="msg-m msg-right" v-if="item.senderId === uid">
 						<image :src="item.imgurl" class="user-img"></image>
 						<!-- 文字 -->
 						<view class="message" v-if="item.types == 0">
@@ -95,12 +95,20 @@
 		comments: { submit },
 		data() {
 			return {
+				uid: '',
+				token: '',
+				uname: '',
+				uimgurl: '',
+				fid: '', // 好友id / 群id
+				fname: '', // 好友名 / 群名
+				type: '', // 标识是群聊天还是一对一聊天 0: 一对一   1: 群
 				msgs: [], // 聊天数据
 				imgMsg: [], // 图片消息数组
 				scrollToView: '',
-				oldTime: new Date(),
+				oldTime: 0,
 				inputh: '72',
 				animationData: {}, // 动画数据
+				pagesize: 10, // 一页条数
 				nowpage: 0, // 页码
 				loading: '', // 加载定时器
 				isloading: false, // 加载转圈
@@ -108,10 +116,33 @@
 				beginloading: true, // 是否开始加载 
 			};
 		},
-		onLoad: function() {
-			this.getMsg(this.nowpage)
+		onLoad: function(e) {
+			this.fid = e.id
+			this.fname = e.name
+			this.type = e.type
+			this.getStorages()
+			this.getMsg1()
 		},
 		methods: {
+			// 获取缓存数据
+			getStorages: function() {
+				try {
+					const value = uni.getStorageSync('user');
+					if (value) {
+						this.uid = value.id
+						this.token = value.token
+						this.uimgurl = this.serverUrl + value.imgurl
+						this.uname = value.name
+					} else {
+						// 如果没有用户缓存，跳转到登录页
+						uni.navigateTo({
+							url: '../siginin/siginin'
+						})
+					}
+				} catch (e) {
+				   // error
+				}
+			},
 			// 返回上一页
 			backOne: function() {
 				uni.navigateBack({
@@ -156,47 +187,90 @@
 				return myfun.dataTime1(date)
 			},
 			// 获取聊天数据
-			getMsg: function(page) {
-				let msg = datas.messages()
-				let maxpages = msg.length
-				
-				if (msg.length > (page + 1)*10) {
-					maxpages = (page + 1) * 10
-					// 页面加一
-					this.nowpage++
-				}else {
-					// 数据获取完毕
-					this.nowpage = -1
-				}
-				
-				// 处理头像地址
-				for (var i = page*10; i< maxpages; i++) {
-					msg[i].imgurl = '../../static/images/test_imgs/' + msg[i].imgurl
-					// 时间间隔
-					if (i < msg.length - 1) {
-						let t = myfun.spaceTime(this.oldTime, msg[i].time)
-						if (t) {
-							this.oldTime = t
+			getMsg1: function(page) {
+				uni.request({
+					url: this.serverUrl + '/chat/msg',
+					data: {
+						uid: this.uid,
+						fid: this.fid,
+						nowPage: this.nowpage,
+						pageSize: this.pagesize,
+						token: this.token,
+					},
+					method: 'POST',
+					success: (data) => {
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							let msg = data.data.result
+							// 将获得的数组倒序
+							msg.reverse()
+							if (msg.length > 0) {
+								let oldtime = msg[0].time
+								msg[0].imgurl = this.serverUrl + msg[0].imgurl
+								let imgarr = []
+								if (msg[0].types == 1) {
+									msg[0].message = this.serverUrl + msg[0].message
+									imgarr.push(msg[0].message)
+								}
+								for (let i = 1; i< msg.length; i++) {
+									msg[i].imgurl = this.serverUrl + msg[i].imgurl
+									// 时间间隔
+									if (i < msg.length - 1) {
+										let t = myfun.spaceTime(oldTime, msg[i].time)
+										if (t) {
+											oldTime = t
+										}
+										msg[i].time = t
+									}
+									// 匹配最大时间
+									if(this.nowpage == 0) {
+										if(msg[i].time > this.oldTime) {
+											this.oldTime = msg[i].time
+										}
+									}
+									// 补充图片消息地址
+									if (msg[i].types === 1) {
+										msg[i].message = this.serverUrl + msg[i].message
+										imgarr.push(msg[i].message)
+									}
+								}
+								this.msgs = msg.concat(this.msgs)
+								this.imgMsg = imgarr.concat(this.imgMsg) // 保存图片到预览数组
+							}
+							// 判断nowPage
+							if (msg.length == 10) {
+								// 页面加一
+								this.nowpage++
+							}else {
+								// 数据获取完毕
+								this.nowpage = -1
+							}
+							this.$nextTick(function(){
+								this.swanition = false
+								this.scrollToView = 'msg' + this.msgs[msg.length-1].id
+							})
+							clearInterval(this.loading)
+							// 关闭转圈
+							this.isloading = false
+							
+							// 开启加载
+							this.beginloading = true
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
 						}
-						msg[i].time = t
 					}
-					// 补充图片消息地址
-					if (msg[i].types === 1) {
-						msg[i].message = '../../static/images/test_imgs/' + msg[i].message
-						this.imgMsg.unshift(msg[i].message) // 保存图片到预览数组
-					}
-					this.msgs.unshift(msg[i])
-				}
-				this.$nextTick(function(){
-					this.swanition = false
-					this.scrollToView = 'msg' + this.msgs[maxpages-page*10-1].tip
 				})
-				clearInterval(this.loading)
-				// 关闭转圈
-				this.isloading = false
-				
-				// 开启加载
-				this.beginloading = true
 			},
 			// 预览图片
 			previewImg: function(e) {
@@ -248,6 +322,11 @@
 			},
 			// 接受消息内容
 			inputs: function(e) {
+				this.receiveMsg(e, this.uid, this.uimgurl, 0)
+			},
+			// 接受消息
+			receiveMsg: function(e, id, img, tip) {
+				// tip: 0  表示自己发的  tip: 1  服务器发的
 				this.swanition = true
 				let len = this.msgs.length
 				let nowTime = new Date()
@@ -256,16 +335,16 @@
 				if (t) {
 					this.oldTime = t
 				}
+
 				nowTime = t
-				
 				// 接收的消息
 				let amsg = {
-					id: 'b', // 用户id
-					imgurl: '../../static/images/test_imgs/one.png', // 用户头像
+					senderId: id, // 发送者id
+					imgurl: img, // 用户头像
 					message: e.message, // 用户消息
 					types: e.types,     // 消息类型(0: 文字  1: 图片链接 2: 音频链接。。。)
 					time: nowTime, // 发送时间
-					tip: len,
+					id: len,
 				}
 				this.msgs.push(amsg)
 				this.$nextTick(function(){

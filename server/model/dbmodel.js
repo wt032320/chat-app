@@ -12,7 +12,7 @@ var UserSchema = new Schema({
   birth: { type: Date },                             // 生日
   phone: { type: String },                           // 电话
   explain: { type: String },                         // 签名
-  imgurl: { type: String, default: 'user.png' },     // 头像链接
+  imgurl: { type: String, default: '/user/user.png' },     // 头像链接
   time: { type: Date },                              // 注册时间
 })
 
@@ -41,7 +41,7 @@ var MessageSchema = new Schema({
 var GroupSchema = new Schema({
   userID: { type: Schema.Types.ObjectId, ref: 'User' },               // 群主ID
   name: { type: String },                                             // 群名称
-  imgurl: { type: String, default: 'group.png' },                     // 群封面链接
+  imgurl: { type: String, default: '/group/group.png' },                     // 群封面链接
   time: { type: Date },                                               // 建群时间
   notices: { type: String },                                          // 群公告
 })

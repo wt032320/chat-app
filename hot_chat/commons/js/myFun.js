@@ -144,7 +144,7 @@ export default {
 		now = new Date(now)
 		var told = old.getTime()
 		var tnow = now.getTime()
-		if (told > (tnow + 1000 * 60 * 5)) {
+		if (tnow > (told + 1000 * 60 * 5)) {
 			return now
 		} else {
 			return ''
@@ -167,6 +167,25 @@ export default {
 		}
 		
 		return Y + '-' + M + '-' + D
+	},
+	
+	// 文件夹使用时间
+	fileTime(date) {
+	  let old = new Date(date)
+	  // 获取old具体时间
+	  let Y = old.getFullYear()
+	  let M = old.getMonth() + 1
+	  let D = old.getDate()
+		
+		// 处理时间
+		if(M < 10) {
+			M = '0' + M
+		}
+		if(D < 10) {
+			D = '0' + D
+		}
+		
+		return Y + M + D
 	},
 	
 	// 搜索延时函数(防抖)

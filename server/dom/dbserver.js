@@ -518,6 +518,7 @@ exports.getUsers = function(data, res) {
         markname: ver.markname,
         imgurl: ver.friendID.imgurl,
         lastTime: ver.lastTime,
+        type: 0,
       }
     })
     res.send({
@@ -613,12 +614,13 @@ exports.getGroup = function(uid, res) {
   query.exec().then(function(e) {
     let result = e.map((ver)=> {
       return {
-        gid: ver.groupID._id,
+        id: ver.groupID._id,
         name: ver.groupID.name, // 群名
         markname: ver.name, // 群内昵称
         imgurl: ver.groupID.imgurl,
         lastTime: ver.lastTime,
         tip: ver.tip,  // 未读消息数
+        type: 1,
       }
     })
     res.send({
@@ -668,5 +670,55 @@ exports.updateGroupMsg = function(data, res) {
     } else {
       res.send({ status: 200 })
     }
+  })
+}
+
+// 消息操作
+// 分页获取数据一对一聊天数据
+exports.msg = function(data, res) {
+  // data: uid, fid, nowPage(当前页面), pageSize
+  var skipNum = data.nowPage * data.pageSize // 跳过信息条数
+  
+  let query = Message.find({})
+  // 查询条件
+  query.where({
+    $or:[
+      {
+        'userID': data.uid,
+        'friendID': data.fid,
+      },
+      {
+        'userID': data.fid,
+        'friendID': data.uid,
+      }
+    ]
+  })
+  // 排序方式 最后通讯时间倒序排列
+  query.sort({ 'time': -1 })
+  // 查找userID 关联的user对象
+  query.populate('userID')
+  // 跳过信息条数
+  query.skip(skipNum)
+  // 一页条数
+  query.limit(data.pageSize)
+  // 查询结果
+  query.exec().then(function(e) {
+    let result = e.map((ver)=> {
+      return {
+        id: ver._id, // 信息id
+        message: ver.message, // 信息内容
+        types: ver.types, // 信息属性
+        time: ver.time, // 发送时间
+        senderId: ver.userID._id, // 发送者id
+        imgurl: ver.userID.imgurl, // 发送者头像
+        
+      }
+    })
+    res.send({
+      status: 200,
+      result,
+    })
+  }).catch(err => {
+    res.send({ status: 500 })
   })
 }

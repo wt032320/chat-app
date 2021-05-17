@@ -129,7 +129,7 @@
 				if(arr._id == this.uid) {
 					tip = 2
 					arr.tip = tip
-					arr.imgurl = this.serverUrl + '/user/' + arr.imgurl
+					arr.imgurl = this.serverUrl + arr.imgurl
 					arr.name = arr.name.replace(exp, "<span style='color:#4AAAFF;'>" + e + "</span>")
 					arr.email = arr.email.replace(exp, "<span style='color:#4AAAFF;'>" + e + "</span>")
 					this.userarr.push(arr)
@@ -164,7 +164,7 @@
 								})
 							}
 							arr.tip = tip
-							arr.imgurl = this.serverUrl + '/user/' + arr.imgurl
+							arr.imgurl = this.serverUrl + arr.imgurl
 							arr.name = arr.name.replace(exp, "<span style='color:#4AAAFF;'>" + e + "</span>")
 							arr.email = arr.email.replace(exp, "<span style='color:#4AAAFF;'>" + e + "</span>")
 							this.userarr.push(arr)
