@@ -19,7 +19,7 @@
 					<view class="title">头像</view>
 					<view class="user-head" v-if="id == uid">
 						<image-cropper :src="tempFilePath" @confirm="confirm"  @cancel="cancel"></image-cropper>
-							<image :src="cropFilePath" @tap="upload" class="user-img"></image>
+						<image :src="cropFilePath" @tap="upload" class="user-img"></image>
 					</view>
 					<view class="more" v-if="id == uid">
 						<image src="../../static/images/common/more.png" mode="aspectFit"></image>

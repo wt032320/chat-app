@@ -14,7 +14,7 @@
 				<view class="search" @tap="toSearch">
 					<image src="../../static/images/index/search.png"></image>
 				</view>
-				<view class="add">
+				<view class="add" @tap="toGroup">
 					<image src="../../static/images/index/add.png"></image>
 				</view>
 			</view>
@@ -354,6 +354,12 @@
 			toChat: function(data) {
 				uni.navigateTo({
 					url:'../chatroom/chatroom?id=' + data.id + '&name=' + data.name + '&type=' + data.type
+				})
+			},
+			// 跳转到建群页面
+			toGroup: function() {
+				uni.navigateTo({
+					url: '../group/group'
 				})
 			}
 		}
