@@ -88,6 +88,8 @@
 			this.getStorages()
 			this.friendRequest()
 			this.getFriends()
+			this.join(this.uid)
+			this.receiveSocketMsg()
 		},
 		// 下拉刷新
 		onPullDownRefresh() {
@@ -338,6 +340,39 @@
 				   // error
 				}
 			},
+			// socket模块
+			// 用户登录socket注册
+			join: function(uid) {
+				this.socket.emit('login', uid)
+			},
+			// socket聊天数据接收
+			receiveSocketMsg: function() {
+				this.socket.on('msg', (msg, fromid) => {
+					let nmsg = ''
+					if (msg.types == 0) {
+						nmsg = msg.message
+					} else if (msg.types == 1) {
+						nmsg = '[图片]'
+					} else if (msg.types == 2) {
+						nmsg = '[语音消息]'
+					} else if (msg.types == 3) {
+						nmsg = '[位置信息]'
+					} 
+					
+					for (let i = 0; i < this.friends.length; i++) {
+						if (this.friends[i].id == fromid) {
+							let e = this.friends[i]
+							e.lastTime = new Date()
+							e.msg = nmsg
+							e.tips++
+							// 删除原来数据项
+							this.friends.splice(i, 1)
+							// 插入消息到最顶部
+							this.friends.unshift(e)
+						}
+					}
+				})
+			},
 			// 跳转到好友请求页
 			toRequest: function() {
 				uni.navigateTo({
@@ -353,7 +388,7 @@
 			// 跳转到聊天页
 			toChat: function(data) {
 				uni.navigateTo({
-					url:'../chatroom/chatroom?id=' + data.id + '&name=' + data.name + '&type=' + data.type
+					url:'../chatroom/chatroom?id=' + data.id + '&name=' + data.name + '&type=' + data.type + '&imgurl=' + data.imgurl
 				})
 			},
 			// 跳转到建群页面

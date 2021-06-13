@@ -420,9 +420,13 @@ exports.insertMsg = function(uid, fid, msg, type, res) {
 
   message.save((err, result) => {
     if (err) {
-      res.send({ status: 500 })
+      if (res) {
+        res.send({ status: 500 })
+      }
     } else {
-      res.send({ status: 200 })
+      if (res) {
+        res.send({ status: 200 })
+      }
     }
   })
 }
@@ -565,8 +569,8 @@ exports.getOneMessage = function(data, res) {
 exports.unreadMsg = function(data, res) {
   // 汇总条件
   let whereStr = { 
-    'userID': data.uid,
-    'friendID': data.fid,
+    'userID': data.fid,
+    'friendID': data.uid,
     'state': 1,
   }
   Message.countDocuments(whereStr, (err, result) => {
@@ -629,6 +633,55 @@ exports.getGroup = function(uid, res) {
     })
   }).catch(err => {
     res.send({ status: 500 })
+  })
+}
+
+// 添加群成员
+function insertGroupUser(data, res) {
+  var groupuser = new GroupUser(data)
+
+  groupuser.save(function(err, result) {
+    if (err) {
+      res.send({ status: 500 })
+    } else {
+      console.log('sucess')
+    }
+  })
+}
+
+// 新建群
+exports.createGroup = function(data, res) {
+  return new Promise((resolve, reject) => {
+    let groupData = {
+      userID: data.uid,               // 群主ID
+      name: data.name,                         // 群名称
+      imgurl: data.imgurl,                     // 群封面链接
+      time: new Date(),                        // 建群时间
+    }
+
+    var group = new Group(groupData)
+    group.save(function(err, result) {
+      if (err) {
+        reject({ status: 500 })
+      } else {
+        resolve(result)
+      }
+    })
+  }).then(function onFulfilled(value) {
+    // 添加好友入群
+    for (let i = 0; i < data.user.length; i++) {
+      let fdata = {
+        groupID: value._id,             // 群ID
+        userID: data.user[i],               // 用户ID
+        time: new Date(),                                               // 加群时间
+        lastTime: new Date(),                                           // 最后通讯时间
+      }
+      // 加入
+      insertGroupUser(fdata, res)
+    }
+    res.send({ status: 200 })
+  }).catch(function onRejected(error) {
+    res.send(error)
   })
 }
 
@@ -708,7 +761,7 @@ exports.msg = function(data, res) {
         id: ver._id, // 信息id
         message: ver.message, // 信息内容
         types: ver.types, // 信息属性
-        time: ver.time, // 发送时间
+        time: ver.time, // 发送时间 
         senderId: ver.userID._id, // 发送者id
         imgurl: ver.userID.imgurl, // 发送者头像
         

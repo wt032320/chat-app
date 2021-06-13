@@ -30,7 +30,7 @@
 			
 			<!-- 选择用户 -->
 			<view class="friends">
-				<view class="user" v-for="(item,index) in user" :key="index" @tap="selectFriend(index)">
+				<view class="user" v-for="(item,index) in friends" :key="index" @tap="selectFriend(index)">
 					<view class="selected" :class="{isselected:item.selected}">
 						<image src="../../static/images/group/choose.png" v-if="item.selected" class="selected-img"></image>
 					</view>
@@ -42,7 +42,7 @@
 			</view>
 		</view>
 		<view class="bottom-bar">
-			<view class="bottom-btn btn1" :class="{unselect:select&&name.length>0}">立即创建({{selectedNumber}})</view>
+			<view class="bottom-btn btn1" :class="{unselect:select&&name.length>0}" @tap="submit">立即创建({{selectedNumber}})</view>
 		</view>
 	</view>
 </template>
@@ -53,77 +53,22 @@
 		components: { ImageCropper },
 		data() {
 			return {
+				uid: '',
+				token: '',
+				gimgurl: '/group/group.png',
 				cropFilePath: '../../static/images/group/group.png', // 裁剪的图片
 				tempFilePath: '', // 裁剪后的图片
 				headimg: '', // 要上传的图片
 				selectedNumber: 0, // 已选择好友数
 				name: '', // 群名
-				user: [
-					{
-						selected: false, // 是否选择
-						imgurl:  '../../static/images/test_imgs/one.png',
-						name: '你好呀呀呀',
-					},
-					{
-						selected: true, // 是否选择
-						imgurl:  '../../static/images/test_imgs/two.png',
-						name: '小南0.0',
-					},
-					{
-						selected: true, // 是否选择
-						imgurl:  '../../static/images/test_imgs/three.png',
-						name: '小耿OvO',
-					},
-					{
-						selected: false, // 是否选择
-						imgurl:  '../../static/images/test_imgs/four.png',
-						name: '桃乃木香奈',
-					},
-					{
-						selected: false, // 是否选择
-						imgurl:  '../../static/images/test_imgs/one.png',
-						name: '你好呀呀呀',
-					},
-					{
-						selected: true, // 是否选择
-						imgurl:  '../../static/images/test_imgs/two.png',
-						name: '小南0.0',
-					},
-					{
-						selected: true, // 是否选择
-						imgurl:  '../../static/images/test_imgs/three.png',
-						name: '小耿OvO',
-					},
-					{
-						selected: false, // 是否选择
-						imgurl:  '../../static/images/test_imgs/four.png',
-						name: '桃乃木香奈',
-					},
-					{
-						selected: false, // 是否选择
-						imgurl:  '../../static/images/test_imgs/one.png',
-						name: '你好呀呀呀',
-					},
-					{
-						selected: true, // 是否选择
-						imgurl:  '../../static/images/test_imgs/two.png',
-						name: '小南0.0',
-					},
-					{
-						selected: true, // 是否选择
-						imgurl:  '../../static/images/test_imgs/three.png',
-						name: '小耿OvO',
-					},
-					{
-						selected: false, // 是否选择
-						imgurl:  '../../static/images/test_imgs/four.png',
-						name: '桃乃木香奈',
-					},
-				]
+				friends: [],  // 好友数组
+				users: [], // 已选择好友id数组
 			};
 		},
 		onLoad: function(){
+			this.getStorages()
 			this.selectedNum()
+			this.getFriends()
 		},
 		computed: {
 			// 是否选择好友
@@ -136,6 +81,23 @@
 			}
 		},
 		methods: {
+			// 获取缓存数据
+			getStorages: function() {
+				try {
+					const value = uni.getStorageSync('user');
+					if (value) {
+						this.uid = value.id
+						this.token = value.token
+					} else {
+						// 如果没有用户缓存，跳转到登录页
+						uni.navigateTo({
+							url: '../siginin/siginin'
+						})
+					}
+				} catch (e) {
+				   // error
+				}
+			},
 			// 返回上一页
 			backOne: function() {
 				uni.navigateBack({
@@ -157,32 +119,21 @@
 				this.tempFilePath = "";
 				this.cropFilePath = e.detail.tempFilePath;
 				this.headimg = e.detail.tempFilePath;
-			},
-			tconfirm(e) {
-				this.tempFilePath = "";
-				this.cropFilePath = e.detail.tempFilePath;
-				this.headimg = e.detail.tempFilePath;
 				uni.uploadFile({
 					url: this.serverUrl + '/files/upload',      //后端地址上传图片接口地址,
 					filePath: this.headimg,
 					name: "file",
 					fileType: "image",
 					formData:{
-						url: 'user',
-						name: this.uid,
+						url: 'group',
+						name: this.uid + new Date().getTime(),
 						token: this.token
 					}, // 传递参数
 					success: (uploadFileRes) => {
 						let backstr = uploadFileRes.data;
-						// 本地存储用户信息修改
-						try {
-						  uni.setStorageSync('user', { 'id': this.uid, 'name': this.myname, 'imgurl': backstr, 'token': this.token });
-						} catch (e) {
-						  // error
-							console.log('数据存储出错')
-						}
-						// 修改头像保存到数据库
-						this.update(backstr, 'imgurl', undefined)
+						console.log(backstr)
+						// 获取群头像名称
+						this.gimgurl = backstr
 					},
 				
 					fail(e) {
@@ -196,20 +147,112 @@
 			},
 			// 获取已选择个数
 			selectedNum: function() {
-				for (let i = 0; i < this.user.length; i++) {
-					if (this.user[i].selected) {
+				for (let i = 0; i < this.friends.length; i++) {
+					if (this.friends[i].selected) {
 						this.selectedNumber++
 					}
 				}
 			},
+			// 获取好友
+			getFriends: function() {
+				uni.request({
+					url: this.serverUrl + '/index/friends',
+					data: {
+						uid: this.uid,
+						state: 0,
+						token: this.token,
+					},
+					method: 'POST',
+					success: (data) => {
+						/* this.refresh = true */
+						let status = data.data.status
+						// 访问后端成功
+						if(status == 200) {
+							this.noone = false
+							let res = data.data.result
+							if (res.length > 0) {
+								for (let i = 0; i < res.length; i++) {
+									res[i].selected = false
+									res[i].imgurl = this.serverUrl + res[i].imgurl
+									if (res[i].markname) {
+										res[i].name = res[i].markname
+									}
+									this.friends.push(res[i])
+								}
+							} else {
+								// this.noone = true
+							}
+							// 群列表
+							// this.getGroups()
+						} else if (status == 500) {
+							uni.showToast({
+								title: '服务器出错啦！',
+								icon: 'none',
+								duration: 2000
+							})
+						} else if (status == 300) {
+							// token过期
+							// 跳到登陆页
+							uni.navigateTo({
+								url: '../siginin/siginin?name=' + this.myname
+							})
+						}
+					}
+				})
+			},
 			// 动态选择好友
 			selectFriend: function(e) {
-				if (this.user[e].selected) {
-					this.user[e].selected = false
+				if (this.friends[e].selected) {
+					this.friends[e].selected = false
 					this.selectedNumber--
 				} else {
-					this.user[e].selected = true
+					this.friends[e].selected = true
 					this.selectedNumber++
+				}
+			},
+			// 创建提交
+			submit: function() {
+				// 符合条件提交
+				if (this.select && this.name.length > 0) {
+					this.users.push(this.uid) // 加入群主
+					for (let i = 0; i < this.friends.length; i++) {
+						if (this.friends[i].selected) {
+							this.users.push(this.friends[i].id)
+						}
+					}
+					uni.request({
+						url: this.serverUrl + '/group/create',
+						data: {
+							uid: this.uid,
+							token: this.token,
+							name: this.name,
+							imgurl: this.gimgurl,
+							user: this.users,
+						},
+						method: 'POST',
+						success: (data) => {
+							/* this.refresh = true */
+							let status = data.data.status
+							// 访问后端成功
+							if(status == 200) {
+								uni.navigateTo({
+									url: '../index/index'
+								})
+							} else if (status == 500) {
+								uni.showToast({
+									title: '服务器出错啦！',
+									icon: 'none',
+									duration: 2000
+								})
+							} else if (status == 300) {
+								// token过期
+								// 跳到登陆页
+								uni.navigateTo({
+									url: '../siginin/siginin?name=' + this.myname
+								})
+							}
+						}
+					})
 				}
 			}
 		}

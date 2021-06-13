@@ -101,6 +101,7 @@
 				uimgurl: '',
 				fid: '', // 好友id / 群id
 				fname: '', // 好友名 / 群名
+				fimgurl: '',
 				type: '', // 标识是群聊天还是一对一聊天 0: 一对一   1: 群
 				msgs: [], // 聊天数据
 				imgMsg: [], // 图片消息数组
@@ -119,9 +120,11 @@
 		onLoad: function(e) {
 			this.fid = e.id
 			this.fname = e.name
+			this.fimgurl = e.imgurl
 			this.type = e.type
 			this.getStorages()
 			this.getMsg1()
+			this.receiveSocketMsg()
 		},
 		methods: {
 			// 获取缓存数据
@@ -217,9 +220,9 @@
 									msg[i].imgurl = this.serverUrl + msg[i].imgurl
 									// 时间间隔
 									if (i < msg.length - 1) {
-										let t = myfun.spaceTime(oldTime, msg[i].time)
+										let t = myfun.spaceTime(oldtime, msg[i].time)
 										if (t) {
-											oldTime = t
+											oldtime = t
 										}
 										msg[i].time = t
 									}
@@ -233,6 +236,10 @@
 									if (msg[i].types === 1) {
 										msg[i].message = this.serverUrl + msg[i].message
 										imgarr.push(msg[i].message)
+									}
+									// json 字符串还原
+									if (msg[i].types === 3) {
+										msg[i].message = JSON.parse(msg[i].message)
 									}
 								}
 								this.msgs = msg.concat(this.msgs)
@@ -326,6 +333,83 @@
 			},
 			// 接受消息
 			receiveMsg: function(e, id, img, tip) {
+				// socket提交
+				if (e.types == 0 || e.types == 3) {
+					// 发送给后端
+					this.sendSocket(e)
+				}
+				if (e.types == 1) {
+					this.imgMsg.push(e.message)
+					// 提交图片
+					// 当前日期文件夹
+					let url = myfun.fileTime(new Date())
+					const uploadTask = uni.uploadFile({
+						url: this.serverUrl + '/files/upload', 
+						filePath: e.message,
+						name: 'file',
+						formData: {
+								url: url,
+								name: new Date().getTime()+ this.uid + Math.ceil(Math.random() * 10)
+						},
+						success: (uploadFileRes) => {
+							let data = {
+								message: uploadFileRes.data,
+								types: e.types
+							}
+							this.sendSocket(data)
+							// let path = this.serverUrl + uploadFileRes.data
+							// this.img.push(path)
+							// console.log(uploadFileRes.data);
+						}
+					});
+							
+					uploadTask.onProgressUpdate((res) => {
+						// console.log('上传进度' + res.progress);
+						// console.log('已经上传的数据长度' + res.totalBytesSent);
+						// console.log('预期需要上传的数据总长度' + res.totalBytesExpectedToSend);
+						
+						// 测试条件，取消上传任务。
+						// if (res.progress > 50) {
+						// 		uploadTask.abort();
+						// }
+					});
+				}
+				if (e.types == 2) {
+					// 提交音频
+					// 当前日期文件夹
+					let url = myfun.fileTime(new Date())
+					const uploadTask = uni.uploadFile({
+						url: this.serverUrl + '/files/upload', 
+						filePath: e.message.voice,
+						name: 'file',
+						formData: {
+								url: url,
+								name: new Date().getTime()+ this.uid + Math.ceil(Math.random() * 10)
+						},
+						success: (uploadFileRes) => {
+							console.log(uploadFileRes)
+							let data = {
+								message: uploadFileRes.data,
+								types: e.types
+							}
+							this.sendSocket(data)
+							// let path = this.serverUrl + uploadFileRes.data
+							// this.img.push(path)
+							// console.log(uploadFileRes.data);
+						}
+					});
+							
+					uploadTask.onProgressUpdate((res) => {
+						// console.log('上传进度' + res.progress);
+						// console.log('已经上传的数据长度' + res.totalBytesSent);
+						// console.log('预期需要上传的数据总长度' + res.totalBytesExpectedToSend);
+						
+						// 测试条件，取消上传任务。
+						// if (res.progress > 50) {
+						// 		uploadTask.abort();
+						// }
+					});
+				}
 				// tip: 0  表示自己发的  tip: 1  服务器发的
 				this.swanition = true
 				let len = this.msgs.length
@@ -335,8 +419,10 @@
 				if (t) {
 					this.oldTime = t
 				}
-
 				nowTime = t
+				if (e.types == 3) {
+					e.message = JSON.parse(e.message)
+				}
 				// 接收的消息
 				let amsg = {
 					senderId: id, // 发送者id
@@ -350,9 +436,53 @@
 				this.$nextTick(function(){
 					this.scrollToView = 'msg' + len
 				})
-				if (e.types == 1) {
-					this.imgMsg.push(e.message)
+				
+			},
+			// 聊天数据发送后端
+			sendSocket: function(e) {
+				if (this.type == 0) {
+					// 一对一聊天
+					this.socket.emit('msg', e, this.uid, this.fid)
+				} else {
+					// 群消息
+					this.socket.emit('groupmsg', e, this.uid, this.fid)
 				}
+			},
+			// socket聊天数据接收
+			receiveSocketMsg: function() {
+				this.socket.on('msg', (msg, fromid, tip) => {
+					if (fromid == this.fid && tip == 0) {
+						this.swanition = true
+						let len = this.msgs.length
+						let nowTime = new Date()
+						// 时间间隔
+						let t = myfun.spaceTime(this.oldTime, nowTime)
+						if (t) {
+							this.oldTime = t
+						}
+						// 判断是否需要添加ip
+						if (msg.types == 1 || msg.types == 2) {
+							msg.message = this.serverUrl + msg.message
+						}
+						nowTime = t
+						// 接收的消息
+						let amsg = {
+							senderId: fromid, // 发送者id
+							imgurl: this.fimgurl, // 发送者头像
+							message: msg.message, // 用户消息
+							types: msg.types,     // 消息类型(0: 文字  1: 图片链接 2: 音频链接。。。)
+							time: nowTime, // 发送时间
+							id: len,
+						}
+						this.msgs.push(amsg)
+						if (msg.types == 1) {
+							this.imgMsg.push(msg.message)
+						}
+						this.$nextTick(function(){
+							this.scrollToView = 'msg' + len
+						})
+					}
+				})
 			},
 			// 输入框高度
 			heights: function(e) {
@@ -365,7 +495,7 @@
 				this.scrollToView = ''
 				this.$nextTick(function(){
 					let len = this.msgs.length - 1
-					this.scrollToView = 'msg' + this.msgs[len].tip
+					this.scrollToView = 'msg' + this.msgs[len].id
 				})
 			}
 		}

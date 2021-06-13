@@ -234,7 +234,9 @@
 							latitude: res.latitude, // 纬度
 							longitude: res.longitude, // 经度
 						}
-						this.send(data, 3)
+						// json 转 字符串
+						let stringData = JSON.stringify(data)
+						this.send(stringData, 3)
 						// console.log('位置名称：' + res.name)
 						// console.log('详细地址：' + res.address)
 						// console.log('纬度：' + res.latitude)

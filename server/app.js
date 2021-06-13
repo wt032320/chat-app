@@ -9,9 +9,7 @@ const port = 8081
 
 // socket.io
 const io = require('socket.io')(8082)
-io.on('connection', (socket) => {
-  // console.log('链接成功')
-})
+require('./dom/socket')(io)
 
 //设置跨域访问
 app.all('*', function(req, res, next) {

@@ -15,6 +15,8 @@ var friend = require('../server/friend')
 var home = require('../server/home')
 // 聊天
 var chat = require('../server/chat')
+// 群
+var group = require('../server/group')
 
 module.exports = function (app) {
   app.get('/test', (req, res) => {
@@ -129,6 +131,13 @@ module.exports = function (app) {
   app.post('/chat/msg', (req, res) => {
     chat.msg(req, res)
   })
+
+  // 建群页
+  // 建群
+  app.post('/group/create', (req, res)=> {
+    group.createGroup(req, res)
+  })
+
   // token测试
   // app.post('/login/test', (req, res) => {
   //   login.test(req, res)
